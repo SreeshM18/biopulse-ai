@@ -8,7 +8,8 @@ import {
   Thermometer, 
   ShieldCheck, 
   BedDouble,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { PatientProfile, RiskLevel } from '../types/biotech';
 
@@ -23,7 +24,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
   onClose,
   onAddPatient
 }) => {
-  const [name, setName] = useState('');
+  const [name, setName] = useState('Arthur Pendelton');
   const [age, setAge] = useState<number>(55);
   const [gender, setGender] = useState<'Male' | 'Female' | 'Other'>('Male');
   const [bedLocation, setBedLocation] = useState('ICU-Bed 06');
@@ -42,9 +43,30 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
 
   if (!isOpen) return null;
 
+  const handleQuickFill = (presetName: string, presetDiag: string, presetRisk: 'CRITICAL' | 'HIGH' | 'MODERATE') => {
+    setName(presetName);
+    setPrimaryDiagnosis(presetDiag);
+    if (presetRisk === 'CRITICAL') {
+      setSpo2(88);
+      setHeartRate(124);
+      setRespiratoryRate(29);
+      setBedLocation('ICU-Bed 01');
+    } else if (presetRisk === 'HIGH') {
+      setSpo2(92);
+      setHeartRate(108);
+      setRespiratoryRate(24);
+      setBedLocation('Step-Down 04');
+    } else {
+      setSpo2(96);
+      setHeartRate(78);
+      setRespiratoryRate(16);
+      setBedLocation('Ward 2B');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    const finalName = name.trim() || 'New Inpatient';
 
     // Calculate initial risk score dynamically
     let calculatedRisk = 15;
@@ -67,8 +89,8 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
     const newPatient: PatientProfile = {
       id: newId,
       mrn: newMrn,
-      name: name.trim(),
-      age: Number(age),
+      name: finalName,
+      age: Number(age) || 50,
       gender,
       bedLocation,
       admissionDate: new Date().toISOString().replace('T', ' ').substring(0, 16),
@@ -118,15 +140,33 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
       vitalsHistory: [
         { time: 'Admit', heartRate: Number(heartRate), spo2: Number(spo2), respiratoryRate: Number(respiratoryRate), temperature: Number(temperature), systolicBp: Number(systolicBp) }
       ],
-      clinicalNotes: [
+      organTwins: [
         {
-          timestamp: new Date().toLocaleString(),
-          author: 'Triage Nurse',
-          noteType: 'Nursing',
-          subjective: 'Patient admitted through ED with respiratory symptoms.',
-          objective: `Initial vitals: HR ${heartRate}, SpO2 ${spo2}%, RR ${respiratoryRate}, Temp ${temperature}°C.`,
-          assessment: `Admission risk calculated at ${calculatedRisk}% (${riskLevel}).`,
-          plan: 'Initiate continuous BioPulse AI telemetry and baseline lab draw.'
+          organName: 'Lungs & Airways',
+          healthScore: riskLevel === 'CRITICAL' ? 42 : riskLevel === 'HIGH' ? 64 : 88,
+          status: riskLevel === 'CRITICAL' ? 'SEVERE_IMPAIRMENT' : riskLevel === 'HIGH' ? 'MODERATE_DYSFUNCTION' : 'OPTIMAL',
+          biomarkers: [
+            { name: 'PaO2/FiO2', value: '240', status: 'WARN' },
+            { name: 'Dead Space Fraction', value: '0.45', status: 'WARN' }
+          ]
+        },
+        {
+          organName: 'Heart & Myocardium',
+          healthScore: riskLevel === 'CRITICAL' ? 58 : 82,
+          status: riskLevel === 'CRITICAL' ? 'MODERATE_DYSFUNCTION' : 'OPTIMAL',
+          biomarkers: [
+            { name: 'Cardiac Output', value: '4.8 L/min', status: 'NORMAL' },
+            { name: 'Troponin-I', value: '0.02 ng/mL', status: 'NORMAL' }
+          ]
+        },
+        {
+          organName: 'Kidneys & Glomeruli',
+          healthScore: 92,
+          status: 'OPTIMAL',
+          biomarkers: [
+            { name: 'eGFR', value: '88 mL/min', status: 'NORMAL' },
+            { name: 'Serum Creatinine', value: '1.0 mg/dL', status: 'NORMAL' }
+          ]
         }
       ]
     };
@@ -136,16 +176,21 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="relative w-full max-w-2xl bg-[#090e1d] text-slate-100 border border-cyan-500/40 rounded-3xl shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-4 pt-6 sm:pt-4">
+      <div className="relative w-full max-w-2xl bg-[#090e1d] text-slate-100 border border-cyan-500/50 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] my-auto">
         
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-900/90 border-b border-slate-800">
+        {/* Header (Always Visible at Top) */}
+        <div className="flex items-center justify-between px-5 py-3.5 bg-slate-900/95 border-b border-slate-800 shrink-0">
           <div className="flex items-center space-x-2">
-            <UserPlus className="w-5 h-5 text-cyan-400" />
-            <h3 className="font-extrabold text-sm text-white">
-              Admit New Patient to BioPulse AI Telemetry
-            </h3>
+            <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
+              <UserPlus className="w-4 h-4 text-cyan-400" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-sm text-white">
+                Admit New Patient
+              </h3>
+              <p className="text-[10px] font-mono text-cyan-400">BioPulse AI Telemetry</p>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -155,20 +200,52 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Quick Fill Preset Pills */}
+        <div className="px-5 py-2 bg-slate-950/80 border-b border-slate-800/80 flex items-center space-x-2 overflow-x-auto no-scrollbar shrink-0">
+          <span className="text-[10px] font-mono text-slate-400 shrink-0 flex items-center space-x-1">
+            <Sparkles className="w-3 h-3 text-cyan-400" />
+            <span>Quick Presets:</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => handleQuickFill('Arthur Pendelton', 'Acute Exacerbation of COPD', 'HIGH')}
+            className="px-2.5 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-[11px] font-bold text-cyan-300 whitespace-nowrap"
+          >
+            Arthur (COPD)
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickFill('Elena Rostova', 'Acute Myocardial Infarction', 'CRITICAL')}
+            className="px-2.5 py-1 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-[11px] font-bold text-rose-300 whitespace-nowrap"
+          >
+            Elena (Critical MI)
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickFill('David Chen', 'Post-Op Knee Arthroplasty', 'MODERATE')}
+            className="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-[11px] font-bold text-emerald-300 whitespace-nowrap"
+          >
+            David (Post-Op)
+          </button>
+        </div>
+
+        {/* Form Body (Scrollable with text-base to prevent iOS Safari auto-zoom) */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
           
           {/* Patient Demographics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1 sm:col-span-2">
-              <label className="text-[11px] font-bold text-slate-400 uppercase">Patient Full Name</label>
+              <label className="text-[11px] font-black text-cyan-300 uppercase tracking-wider flex items-center justify-between">
+                <span>Patient Full Name *</span>
+                <span className="text-[10px] text-slate-400 font-normal">Editable</span>
+              </label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Arthur Pendelton"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border-2 border-cyan-500/60 focus:border-cyan-400 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white font-medium focus:outline-none shadow-glow-cyan"
               />
             </div>
 
@@ -178,7 +255,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                 type="number"
                 value={age}
                 onChange={(e) => setAge(Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white focus:outline-none focus:border-cyan-400"
               />
             </div>
           </div>
@@ -189,7 +266,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value as any)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white focus:outline-none focus:border-cyan-400"
               >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -204,7 +281,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                 value={bedLocation}
                 onChange={(e) => setBedLocation(e.target.value)}
                 placeholder="e.g. ICU-Bed 05, Ward 3A"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white focus:outline-none focus:border-cyan-400"
               />
             </div>
 
@@ -213,7 +290,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
               <select
                 value={bloodGroup}
                 onChange={(e) => setBloodGroup(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white focus:outline-none focus:border-cyan-400"
               >
                 <option value="O+ (O Positive)">O+ (O Positive)</option>
                 <option value="O- (O Universal Donor)">O- (O Universal Donor)</option>
@@ -232,7 +309,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
               value={primaryDiagnosis}
               onChange={(e) => setPrimaryDiagnosis(e.target.value)}
               placeholder="e.g. Acute Coronary Syndrome, Sepsis, Post-Op"
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white focus:outline-none focus:border-cyan-400"
             />
           </div>
 
@@ -250,7 +327,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                   type="number"
                   value={heartRate}
                   onChange={(e) => setHeartRate(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-white font-mono"
                 />
               </div>
 
@@ -260,7 +337,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                   type="number"
                   value={spo2}
                   onChange={(e) => setSpo2(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-white font-mono"
                 />
               </div>
 
@@ -270,7 +347,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                   type="number"
                   value={respiratoryRate}
                   onChange={(e) => setRespiratoryRate(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-white font-mono"
                 />
               </div>
 
@@ -281,7 +358,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                   step="0.1"
                   value={temperature}
                   onChange={(e) => setTemperature(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-white font-mono"
                 />
               </div>
 
@@ -291,7 +368,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                   type="number"
                   value={systolicBp}
                   onChange={(e) => setSystolicBp(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-white font-mono"
                 />
               </div>
             </div>
@@ -306,7 +383,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                 value={allergies}
                 onChange={(e) => setAllergies(e.target.value)}
                 placeholder="e.g. Penicillin, Sulfa"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white focus:outline-none focus:border-cyan-400"
               />
             </div>
 
@@ -317,26 +394,26 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
                 value={medications}
                 onChange={(e) => setMedications(e.target.value)}
                 placeholder="e.g. Lisinopril, Metformin"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white focus:outline-none focus:border-cyan-400"
               />
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Actions (Sticky at base of form) */}
           <div className="pt-4 border-t border-slate-800 flex items-center justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white shadow-glow-cyan transition-all"
+              className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white shadow-glow-cyan transition-all"
             >
-              Admit Patient & Start AI Telemetry
+              Admit Patient & Start AI
             </button>
           </div>
 
