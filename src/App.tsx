@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { JudgePitchBanner } from './components/JudgePitchBanner';
 import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
 import { SettingsModal } from './components/SettingsModal';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { CommandCenter } from './components/CommandCenter';
 import { NovaAnatomyTwin3D } from './components/NovaAnatomyTwin3D';
 import { PatientMonitor } from './components/PatientMonitor';
@@ -77,7 +78,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 pb-16 md:pb-0">
       
       {/* 1. Header Navigation with 4 Access Portals Switcher */}
       <Navbar 
@@ -107,7 +108,7 @@ export const App: React.FC = () => {
         setActiveTab={setActiveTab}
       >
         {/* Main Workspace Container */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
           
           {/* === SECTION A: 4 ACCESS PORTALS & CLINICAL CORE === */}
           {activeTab === 'command_center' && (
@@ -266,21 +267,28 @@ export const App: React.FC = () => {
         </main>
       </MultiDeviceViewportSimulator>
 
-      {/* 4. Automated Clinical SOAP Notes Modal */}
+      {/* 4. Native Mobile Bottom Navigation Bar */}
+      <MobileBottomNav 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
+
+      {/* 5. Automated Clinical SOAP Notes Modal */}
       <ClinicalNotesModal 
         isOpen={isNotesOpen} 
         onClose={() => setIsNotesOpen(false)} 
         patient={selectedPatient} 
       />
 
-      {/* 5. Patient Admission Modal */}
+      {/* 6. Patient Admission Modal */}
       <PatientRegistrationModal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
         onAddPatient={handleAddPatient}
       />
 
-      {/* 6. Settings & Mobile Connect QR Modal */}
+      {/* 7. Settings & Mobile Connect QR Modal */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
@@ -292,8 +300,8 @@ export const App: React.FC = () => {
         setAutoDetectDevice={setAutoDetectDevice}
       />
 
-      {/* 7. Footer */}
-      <footer className="border-t border-slate-800/80 bg-[#060913]/90 py-6 px-4 text-center text-xs text-slate-500 space-y-2">
+      {/* 8. Footer (Hidden on mobile to save vertical space) */}
+      <footer className="hidden md:block border-t border-slate-800/80 bg-[#060913]/90 py-6 px-4 text-center text-xs text-slate-500 space-y-2">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
             <ShieldCheck className="w-4 h-4 text-cyan-400" />

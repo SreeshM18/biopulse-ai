@@ -100,8 +100,8 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
   return (
     <div className="w-full flex flex-col min-h-screen bg-[#050814]">
       
-      {/* Floating Sticky Device Viewport Switcher Toolbar */}
-      <div className="sticky top-16 z-40 bg-[#070b16]/95 backdrop-blur-2xl border-b border-cyan-500/20 py-2 px-4 shadow-2xl">
+      {/* Floating Sticky Device Viewport Switcher Toolbar (Desktop only) */}
+      <div className="hidden md:block sticky top-14 sm:top-16 z-40 bg-[#070b16]/95 backdrop-blur-2xl border-b border-cyan-500/20 py-2 px-4 shadow-2xl">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
           
           {/* Brand & Preset Title */}
