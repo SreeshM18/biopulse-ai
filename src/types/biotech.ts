@@ -2,6 +2,7 @@ export type UserPortalRole = 'patient' | 'emergency' | 'doctor' | 'hospital';
 
 export type TabType = 
   | 'command_center' 
+  | 'nova_pharma'
   | 'nova_anatomy_twin'
   | 'patient_monitor' 
   | 'organ_3d_twin'
@@ -413,3 +414,163 @@ export interface SequenceAnalysisResult {
   }[];
   qualityScoreAvg: number;
 }
+
+/* =========================================================================
+   MASTER A–Z PHARMACY & DRUG UNIVERSE (NOVA PHARMA) DATA TYPES
+   ========================================================================= */
+
+export type PharmaDosageForm = 
+  | 'Tablet' | 'Capsule' | 'Syrup' | 'Suspension' | 'Solution' | 'Drops' 
+  | 'Injection (IV/IM/SC)' | 'Infusion' | 'Inhaler / MDI' | 'Nebulizer Solution' 
+  | 'Nasal Spray' | 'Eye Drops' | 'Ear Drops' | 'Cream / Ointment' | 'Gel' 
+  | 'Transdermal Patch' | 'Suppository' | 'Sublingual Tablet' | 'Vaccine' | 'Biologic / Monoclonal'
+  | 'Auto-Injector' | 'Lozenges' | 'Powders' | 'Granules' | 'Sachets' | 'Pessaries' | 'Mouthwashes' | 'Foams' | 'Sprays' | 'Implants';
+
+export type PharmaAdministrationRoute = 
+  | 'Oral' | 'Intravenous (IV)' | 'Intramuscular (IM)' | 'Subcutaneous (SC)' 
+  | 'Inhaled' | 'Nasal' | 'Ophthalmic' | 'Otic' | 'Topical' | 'Transdermal' 
+  | 'Rectal' | 'Sublingual / Buccal';
+
+export type PharmaLegalStatus = 
+  | 'OTC (Over-The-Counter)' 
+  | 'Prescription-Only (Rx)' 
+  | 'OTC (Over-The-Counter) / Rx'
+  | 'Controlled Substance (Schedule II/IV)' 
+  | 'Hospital-Only Emergency' 
+  | 'Investigational / Trial' 
+  | 'Orphan Drug' 
+  | 'Biologic / Biosimilar';
+
+export type InteractionSeverityTier = 
+  | 'MINOR' 
+  | 'MODERATE' 
+  | 'MAJOR' 
+  | 'CONTRAINDICATED_CRITICAL';
+
+export interface DrugInteractionItem {
+  targetName: string;
+  targetType: 'Drug' | 'Food' | 'Disease' | 'Lab' | 'Herbal';
+  severity: InteractionSeverityTier;
+  mechanism: string;
+  clinicalAction: string;
+}
+
+export interface PharmacokineticsADME {
+  absorption: string;
+  bioavailability: string; // %
+  distribution: string; // Vd
+  proteinBinding: string; // %
+  metabolism: string; // e.g. CYP3A4, CYP2C9
+  excretion: string; // Renal %, Biliary %
+  halfLife: string; // hours
+  therapeuticWindow: string; // ug/mL or ng/mL
+  narrowTherapeuticIndex: boolean;
+}
+
+export interface MolecularStructure3D {
+  atoms: { element: string; x: number; y: number; z: number; color: string }[];
+  bonds: [number, number][];
+}
+
+export interface MasterDrugRecord {
+  id: string;
+  genericName: string;
+  brandNames: string[];
+  alphabetLetter: string; // A to Z
+  drugClass: string;
+  therapeuticCategory: string;
+  chemicalName: string;
+  molecularFormula: string;
+  molecularWeight: number; // g/mol
+  smilesNotation: string;
+  mechanismOfAction: string;
+  
+  dosageForms: PharmaDosageForm[];
+  routes: PharmaAdministrationRoute[];
+  availableStrengths: string[];
+
+  indications: string[];
+  absoluteContraindications: string[];
+  relativeContraindications: string[];
+  blackBoxWarnings?: string;
+  
+  sideEffectsCommon: string[];
+  sideEffectsSerious: string[];
+  adverseReactionRisk: string;
+
+  interactions: DrugInteractionItem[];
+  adme: PharmacokineticsADME;
+
+  pregnancyCategory: 'A' | 'B' | 'C' | 'D' | 'X';
+  lactationSafety: string;
+  pediatricDosingRule: string; // mg/kg
+  geriatricBeersWarning?: string;
+  renalAdjustmentGFR: string;
+  hepaticAdjustment: string;
+
+  legalStatus: PharmaLegalStatus;
+  isHighAlert: boolean;
+  isColdChain: boolean;
+  storageRequirement: string; // e.g. 2°C - 8°C or 15°C - 25°C
+  
+  inventoryStock: number; // units available
+  batchNumber: string;
+  expiryDate: string;
+  isRecallOrAlert: boolean;
+  recallStatusText?: string;
+  barcodeGS1: string;
+
+  atoms3D?: MolecularStructure3D;
+}
+
+export interface PoisoningAntidoteRecord {
+  id: string;
+  toxinName: string;
+  exposureCategory: 'Medication Overdose' | 'Pesticide / Organophosphate' | 'Heavy Metal' | 'Toxic Gas / Chemical' | 'Biological Venom';
+  ghsHazardSymbol: 'Toxic ☠️' | 'Corrosive 🧪' | 'Flammable 🔥' | 'Biohazard ☣️' | 'Irritant ⚠️';
+  clinicalSymptoms: string[];
+  primaryAntidote: string;
+  antidoteDoseProtocol: string;
+  mechanismOfNeutralization: string;
+  hospitalUnitRequired: string;
+  poisonControlCode: string;
+}
+
+export interface BatchVerificationReport {
+  barcodeScanned: string;
+  ndcOrBatch: string;
+  drugName: string;
+  manufacturer: string;
+  manufactureDate: string;
+  expiryDate: string;
+  tamperSealVerified: boolean;
+  blockchainHash: string;
+  status: 'AUTHENTIC_VERIFIED' | 'RECALLED_BATCH' | 'COUNTERFEIT_DETECTED' | 'EXPIRED_LOT';
+  safetyNotice: string;
+}
+
+export interface ADRSubmissionRecord {
+  id: string;
+  patientId: string;
+  patientName: string;
+  suspectedDrug: string;
+  adverseEvent: string;
+  severityGrade: 'Mild (Grade 1)' | 'Moderate (Grade 2)' | 'Severe (Grade 3)' | 'Life-Threatening (Grade 4)';
+  onsetTime: string;
+  outcome: 'Recovering' | 'Resolved' | 'Persistent' | 'Required Hospitalization';
+  reportedBy: string;
+  dateReported: string;
+  pharmacovigilanceStatus: 'Under Signal Review' | 'Submitted to FDA MedWatch / WHO Vigibase';
+}
+
+export interface ColdChainLog {
+  unitId: string;
+  storageUnitName: string;
+  targetTempRange: string; // e.g. 2.0°C - 8.0°C
+  currentTemp: number; // Celsius
+  status: 'OPTIMAL' | 'WARNING_HIGH' | 'CRITICAL_BREACH';
+  timestamp: string;
+  activeVaccinesStored: string[];
+  backupGeneratorActive: boolean;
+}
+

@@ -7,6 +7,7 @@ import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/M
 import { SettingsModal } from './components/SettingsModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { CommandCenter } from './components/CommandCenter';
+import { NovaPharmaUniverse } from './components/NovaPharmaUniverse';
 import { NovaAnatomyTwin3D } from './components/NovaAnatomyTwin3D';
 import { PatientMonitor } from './components/PatientMonitor';
 import { OrganDigitalTwin3D } from './components/OrganDigitalTwin3D';
@@ -169,6 +170,13 @@ export const App: React.FC = () => {
               onSelectPatient={setSelectedPatient}
               setActiveTab={setActiveTab}
               onOpenRegister={() => setIsRegisterOpen(true)}
+            />
+          )}
+
+          {activeTab === 'nova_pharma' && (
+            <NovaPharmaUniverse 
+              patient={selectedPatient}
+              setActiveTab={setActiveTab}
             />
           )}
 
