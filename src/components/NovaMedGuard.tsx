@@ -95,11 +95,11 @@ export const NovaMedGuard: React.FC<NovaMedGuardProps> = ({
     patientName: currentPatientProfile.name,
     age: currentPatientProfile.age,
     gender: currentPatientProfile.gender as any,
-    weightKg: currentPatientProfile.weightKg || 78,
+    weightKg: 78,
     isPregnant: false,
     pregnancyTrimester: '1st Trimester',
     isLactating: false,
-    knownAllergies: currentPatientProfile.allergies || ['Penicillin-Class Antibiotics'],
+    knownAllergies: currentPatientProfile.emergencyPassport?.criticalAllergies || ['Penicillin-Class Antibiotics'],
     diagnosedDiseases: [
       currentPatientProfile.primaryDiagnosis,
       'Type 2 Diabetes Mellitus',
