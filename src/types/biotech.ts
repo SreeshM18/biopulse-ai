@@ -439,6 +439,8 @@ export type SubstanceUniverseCategory =
   | 'Veterinary medicines'
   | 'Herbal/traditional products'
   | 'Supplements'
+  | 'Vaccine'
+  | 'Biologic'
   | 'Biologics & Gene Therapies';
 
 export type VisualSafetyRiskTier =
@@ -451,13 +453,45 @@ export type VisualSafetyRiskTier =
   | 'ILLICIT_TOXICOLOGY'; // ⚫ Illicit / Toxicology Record
 
 export type PharmaDosageForm = 
-  | 'Tablet' | 'Capsule' | 'Syrup' | 'Suspension' | 'Solution' | 'Drops' 
-  | 'Injection (IV/IM/SC)' | 'Injection' | 'Infusion' | 'Inhaler / MDI' | 'Nebulizer Solution' 
-  | 'Nasal Spray' | 'Eye Drops' | 'Ear Drops' | 'Cream / Ointment' | 'Cream' | 'Ointment' | 'Gel' | 'Lotion' 
-  | 'Transdermal Patch' | 'Suppository' | 'Suppositories' | 'Pessaries' | 'Sublingual Tablet' | 'Vaccine' | 'Biologic / Monoclonal'
-  | 'Vaccines / Biologic Medicines' | 'Auto-Injector' | 'Lozenges' | 'Powders' | 'Granules' | 'Sachets' 
-  | 'Mouthwashes' | 'Foams' | 'Sprays' | 'Implants'
-  | 'Oral Dissolving Film / Strip' | 'Films' | 'Wafers' | 'Medicated Shampoo' | 'Enemas' | 'Dental Preparation' | 'Drug-Eluting Device';
+  | 'Tablets' | 'Tablet' 
+  | 'Capsules' | 'Capsule' 
+  | 'Syrups' | 'Syrup' 
+  | 'Suspensions' | 'Suspension' 
+  | 'Oral solutions' | 'Solution' 
+  | 'Drops' 
+  | 'Injections' | 'Injection' | 'Injection (IV/IM/SC)' 
+  | 'Infusions' | 'Infusion' 
+  | 'Inhalers' | 'Inhaler / MDI' 
+  | 'Nebulizer solutions' | 'Nebulizer Solution' 
+  | 'Nasal sprays' | 'Nasal Spray' 
+  | 'Eye drops' | 'Eye Drops' 
+  | 'Ear drops' | 'Ear Drops' 
+  | 'Creams' | 'Cream' 
+  | 'Ointments' | 'Ointment' | 'Cream / Ointment' 
+  | 'Gels' | 'Gel' 
+  | 'Lotions' | 'Lotion' 
+  | 'Powders' | 'Granules' | 'Sachets' 
+  | 'Suppositories' | 'Suppository' 
+  | 'Pessaries' 
+  | 'Transdermal patches' | 'Transdermal Patch' 
+  | 'Lozenges' 
+  | 'Mouthwashes' 
+  | 'Foams' 
+  | 'Sprays' 
+  | 'Implants' 
+  | 'Vaccines' | 'Vaccine' | 'Vaccines / Biologic Medicines' 
+  | 'Biologic medicines' | 'Biologic / Monoclonal' 
+  | 'Oral dissolving films' | 'Oral Dissolving Film / Strip' | 'Films' | 'Wafers' 
+  | 'Buccal films' 
+  | 'Medicated shampoos' | 'Medicated Shampoo' 
+  | 'Enemas' 
+  | 'Dental preparations' | 'Dental Preparation' 
+  | 'Vaginal rings' 
+  | 'Drug-eluting devices' | 'Drug-Eluting Device' 
+  | 'Prefilled syringes' 
+  | 'Auto-injectors' | 'Auto-Injector' 
+  | 'Infusion pumps/cartridges'
+  | 'Sublingual Tablet';
 
 export type PharmaAdministrationRoute = 
   | 'Oral' 
@@ -482,6 +516,19 @@ export type PharmaAdministrationRoute =
   | 'Sublingual / Buccal';
 
 export type PharmaLegalStatus = 
+  | 'OTC' 
+  | 'Pharmacist-only'
+  | 'Prescription' 
+  | 'Specialist prescription'
+  | 'Controlled prescription'
+  | 'Hospital-only' 
+  | 'Emergency-use'
+  | 'High-alert'
+  | 'Investigational' 
+  | 'Restricted indication'
+  | 'Vaccine'
+  | 'Biologic'
+  | 'Orphan medicine'
   | 'OTC (Over-The-Counter)' 
   | 'Prescription-Only (Rx)' 
   | 'OTC (Over-The-Counter) / Rx'
