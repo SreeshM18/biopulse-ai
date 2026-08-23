@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { JudgePitchBanner } from './components/JudgePitchBanner';
-import { MultiDeviceViewportSimulator } from './components/MultiDeviceViewportSimulator';
+import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
+import { SettingsModal } from './components/SettingsModal';
 import { CommandCenter } from './components/CommandCenter';
 import { NovaAnatomyTwin3D } from './components/NovaAnatomyTwin3D';
 import { PatientMonitor } from './components/PatientMonitor';
@@ -43,6 +44,9 @@ export const App: React.FC = () => {
   const [selectedStructure, setSelectedStructure] = useState<ProteinStructure>(PROTEIN_STRUCTURES[0]);
   const [isNotesOpen, setIsNotesOpen] = useState<boolean>(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [deviceMode, setDeviceMode] = useState<ViewportDeviceMode>('responsive');
+  const [autoDetectDevice, setAutoDetectDevice] = useState<boolean>(true);
 
   const handleAddPatient = (newPatient: PatientProfile) => {
     setPatients(prev => [newPatient, ...prev]);
@@ -83,6 +87,7 @@ export const App: React.FC = () => {
         setActiveRole={setActiveRole}
         onOpenNotes={() => setIsNotesOpen(true)} 
         onOpenRegister={() => setIsRegisterOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* 2. Top Judge Pitch Showcase Banner */}
@@ -275,7 +280,19 @@ export const App: React.FC = () => {
         onAddPatient={handleAddPatient}
       />
 
-      {/* 6. Footer */}
+      {/* 6. Settings & Mobile Connect QR Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        deviceMode={deviceMode}
+        setDeviceMode={setDeviceMode}
+        activeRole={activeRole}
+        setActiveRole={setActiveRole}
+        autoDetectDevice={autoDetectDevice}
+        setAutoDetectDevice={setAutoDetectDevice}
+      />
+
+      {/* 7. Footer */}
       <footer className="border-t border-slate-800/80 bg-[#060913]/90 py-6 px-4 text-center text-xs text-slate-500 space-y-2">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
@@ -292,7 +309,7 @@ export const App: React.FC = () => {
             <span>•</span>
             <span className="flex items-center space-x-1 text-purple-400">
               <Layers className="w-3 h-3" />
-              <span>Multi-Screen Grid</span>
+              <span>Auto-Detect Screen</span>
             </span>
             <span>•</span>
             <span className="flex items-center space-x-1 text-emerald-400">

@@ -24,7 +24,8 @@ import {
   Calendar,
   Globe,
   Flame,
-  Brain
+  Brain,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { TabType, UserPortalRole } from '../types/biotech';
 
@@ -35,6 +36,7 @@ interface NavbarProps {
   setActiveRole: (role: UserPortalRole) => void;
   onOpenNotes: () => void;
   onOpenRegister: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
@@ -43,7 +45,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeRole,
   setActiveRole,
   onOpenNotes,
-  onOpenRegister 
+  onOpenRegister,
+  onOpenSettings
 }) => {
   const patientMonitoringTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'command_center', label: 'Command Center', icon: <Activity className="w-4 h-4 text-cyan-400" /> },
@@ -108,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   BioPulse AI
                 </span>
                 <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 rounded-md">
-                  NOVA Anatomy Twin
+                  NOVA Ecosystem
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 font-mono tracking-wider">
@@ -185,6 +188,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <FileCheck2 className="w-4 h-4 text-cyan-400" />
               <span className="hidden sm:inline">SOAP</span>
             </button>
+
+            {onOpenSettings && (
+              <button
+                onClick={onOpenSettings}
+                className="p-2 rounded-xl text-xs font-semibold bg-slate-850 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow-glow-cyan transition-all"
+                title="Settings & Mobile Phone Connect QR"
+              >
+                <SettingsIcon className="w-4 h-4 animate-spin-slow" />
+              </button>
+            )}
           </div>
 
         </div>

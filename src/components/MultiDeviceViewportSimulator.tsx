@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Monitor, 
   Tablet, 
@@ -26,7 +26,8 @@ import {
   ZoomIn,
   ZoomOut,
   RefreshCw,
-  ScreenShare
+  ScreenShare,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { PatientProfile, TabType, UserPortalRole, PrescriptionRecord } from '../types/biotech';
 import { CommandCenter } from './CommandCenter';
@@ -36,6 +37,7 @@ import { EmergencyQRPassport } from './EmergencyQRPassport';
 import { NovaRescueEmergencyNetwork } from './NovaRescueEmergencyNetwork';
 import { DoctorWholeBodyMonitor } from './DoctorWholeBodyMonitor';
 import { NovaAnatomyTwin3D } from './NovaAnatomyTwin3D';
+import { SettingsModal } from './SettingsModal';
 
 export type ViewportDeviceMode = 
   | 'responsive' 
@@ -66,8 +68,11 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
   setActiveTab
 }) => {
   const [deviceMode, setDeviceMode] = useState<ViewportDeviceMode>('responsive');
+  const [autoDetectDevice, setAutoDetectDevice] = useState<boolean>(true);
   const [isLandscape, setIsLandscape] = useState<boolean>(false);
-  const [zoomScale, setZoomScale] = useState<number>(0.9); // 90% default for sleek fit
+  const [zoomScale, setZoomScale] = useState<number>(0.9);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isRealMobileDevice, setIsRealMobileDevice] = useState<boolean>(false);
 
   // Multi-Screen Grid Independent Sub-Tabs
   const [desktopTab, setDesktopTab] = useState<TabType>('command_center');
@@ -75,31 +80,49 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
   const [iphoneTab, setIphoneTab] = useState<'qr' | 'sos' | 'timeline'>('qr');
   const [androidTab, setAndroidTab] = useState<'vitals' | 'prescriptions' | 'sos'>('vitals');
 
+  // Automatic Screen & Device Detection
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      setIsRealMobileDevice(isMobile);
+      if (isMobile && autoDetectDevice) {
+        setDeviceMode('responsive');
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [autoDetectDevice]);
+
   const toggleOrientation = () => setIsLandscape(!isLandscape);
 
   return (
     <div className="w-full flex flex-col min-h-screen bg-[#050814]">
       
       {/* Floating Sticky Device Viewport Switcher Toolbar */}
-      <div className="sticky top-16 z-40 bg-[#070b16]/95 backdrop-blur-2xl border-b border-cyan-500/20 py-2.5 px-4 shadow-2xl">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="sticky top-16 z-40 bg-[#070b16]/95 backdrop-blur-2xl border-b border-cyan-500/20 py-2 px-4 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
           
           {/* Brand & Preset Title */}
           <div className="flex items-center space-x-2">
             <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono font-black bg-cyan-950 text-cyan-300 border border-cyan-500/40 shadow-glow-cyan">
-              Device Simulator 3.0
+              {isRealMobileDevice ? 'Mobile Auto-Optimized' : 'Device Simulator 3.0'}
             </span>
             <span className="text-slate-300 hidden md:inline text-xs font-semibold">
-              Pixel-Perfect Adaptive Viewports:
+              {autoDetectDevice ? 'Auto-Fit Active' : 'Manual Viewport Preset'}:
             </span>
           </div>
 
           {/* Device Presets Switcher Bar */}
-          <div className="flex items-center space-x-1.5 bg-slate-950/90 p-1 rounded-2xl border border-slate-800 flex-wrap gap-y-1 shadow-inner">
+          <div className="flex items-center space-x-1 bg-slate-950/90 p-1 rounded-2xl border border-slate-800 flex-wrap gap-y-1 shadow-inner">
             
             {/* 1. Full Responsive */}
             <button
-              onClick={() => setDeviceMode('responsive')}
+              onClick={() => {
+                setDeviceMode('responsive');
+                setAutoDetectDevice(true);
+              }}
               className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-all ${
                 deviceMode === 'responsive'
                   ? 'bg-cyan-500 text-slate-950 shadow-glow-cyan font-black'
@@ -113,8 +136,11 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
 
             {/* 2. iPhone 16 Pro */}
             <button
-              onClick={() => setDeviceMode('iphone')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-all ${
+              onClick={() => {
+                setDeviceMode('iphone');
+                setAutoDetectDevice(false);
+              }}
+              className={`flex items-center space-x-1 px-2 py-1.5 rounded-xl font-bold transition-all ${
                 deviceMode === 'iphone'
                   ? 'bg-emerald-500 text-slate-950 shadow-glow-cyan font-black'
                   : 'text-slate-400 hover:text-white'
@@ -122,13 +148,16 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
               title="Apple iPhone 16 Pro (393 x 852 px)"
             >
               <Smartphone className="w-3.5 h-3.5" />
-              <span>📱 iPhone</span>
+              <span className="hidden sm:inline">iPhone</span>
             </button>
 
             {/* 3. Android / Galaxy S24 */}
             <button
-              onClick={() => setDeviceMode('android')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-all ${
+              onClick={() => {
+                setDeviceMode('android');
+                setAutoDetectDevice(false);
+              }}
+              className={`flex items-center space-x-1 px-2 py-1.5 rounded-xl font-bold transition-all ${
                 deviceMode === 'android'
                   ? 'bg-teal-500 text-slate-950 shadow-glow-cyan font-black'
                   : 'text-slate-400 hover:text-white'
@@ -136,13 +165,16 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
               title="Samsung Galaxy S24 Ultra Android (412 x 915 px)"
             >
               <Smartphone className="w-3.5 h-3.5 text-emerald-300" />
-              <span>🤖 Android</span>
+              <span className="hidden sm:inline">Android</span>
             </button>
 
             {/* 4. iPad Bedside Tablet */}
             <button
-              onClick={() => setDeviceMode('ipad')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-all ${
+              onClick={() => {
+                setDeviceMode('ipad');
+                setAutoDetectDevice(false);
+              }}
+              className={`flex items-center space-x-1 px-2 py-1.5 rounded-xl font-bold transition-all ${
                 deviceMode === 'ipad'
                   ? 'bg-purple-600 text-white shadow-glow-purple font-black'
                   : 'text-slate-400 hover:text-white'
@@ -150,27 +182,16 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
               title="iPad Pro Bedside Tablet (820 x 1180 px)"
             >
               <Tablet className="w-3.5 h-3.5" />
-              <span>📟 iPad / Tab</span>
+              <span className="hidden sm:inline">iPad</span>
             </button>
 
-            {/* 5. MacBook Laptop */}
+            {/* 5. Desktop 4K Workstation */}
             <button
-              onClick={() => setDeviceMode('macbook')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-all ${
-                deviceMode === 'macbook'
-                  ? 'bg-indigo-600 text-white shadow-glow-purple font-black'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-              title="MacBook Laptop (1280 x 832 px)"
-            >
-              <Laptop className="w-3.5 h-3.5" />
-              <span>💻 Laptop</span>
-            </button>
-
-            {/* 6. Desktop 4K Workstation */}
-            <button
-              onClick={() => setDeviceMode('desktop')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-all ${
+              onClick={() => {
+                setDeviceMode('desktop');
+                setAutoDetectDevice(false);
+              }}
+              className={`flex items-center space-x-1 px-2 py-1.5 rounded-xl font-bold transition-all ${
                 deviceMode === 'desktop'
                   ? 'bg-blue-600 text-white shadow-glow-cyan font-black'
                   : 'text-slate-400 hover:text-white'
@@ -178,76 +199,46 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
               title="Desktop 4K Clinical Workstation (1440 x 900 px)"
             >
               <Monitor className="w-3.5 h-3.5" />
-              <span>🖥️ Desktop</span>
+              <span className="hidden sm:inline">Desktop</span>
             </button>
 
-            {/* 7. Multi-Screen Quad View */}
+            {/* 6. Multi-Screen Quad View */}
             <button
-              onClick={() => setDeviceMode('multiscreen_grid')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
+              onClick={() => {
+                setDeviceMode('multiscreen_grid');
+                setAutoDetectDevice(false);
+              }}
+              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl font-bold transition-all ${
                 deviceMode === 'multiscreen_grid'
                   ? 'bg-gradient-to-r from-rose-600 via-amber-500 to-emerald-500 text-white shadow-glow-cyan font-black animate-pulse'
                   : 'text-rose-400 hover:text-rose-300'
               }`}
-              title="Live Multi-Screen Grid: Desktop + iPad + iPhone + Android"
+              title="Live Multi-Screen Grid: Desktop + iPad + iPhone"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
-              <span>⚡ Multi-Screen Grid</span>
+              <span>Multi-Grid</span>
             </button>
 
           </div>
 
-          {/* Scale & Orientation Controls */}
-          {deviceMode !== 'responsive' && deviceMode !== 'multiscreen_grid' && (
-            <div className="flex items-center space-x-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-              <button
-                onClick={toggleOrientation}
-                className={`p-1.5 rounded-lg border transition-all flex items-center space-x-1 text-[11px] font-mono ${
-                  isLandscape 
-                    ? 'bg-cyan-500 text-slate-950 font-bold border-cyan-400' 
-                    : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
-                }`}
-                title="Rotate Orientation"
-              >
-                <RotateCw className="w-3.5 h-3.5" />
-                <span>{isLandscape ? 'Landscape' : 'Portrait'}</span>
-              </button>
-
-              <div className="flex items-center space-x-1 pl-1 border-l border-slate-800">
-                <button
-                  onClick={() => setZoomScale(Math.max(0.5, +(zoomScale - 0.1).toFixed(1)))}
-                  className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-3 h-3" />
-                </button>
-                <span className="text-[10px] font-mono text-cyan-300 w-9 text-center font-bold">
-                  {Math.round(zoomScale * 100)}%
-                </span>
-                <button
-                  onClick={() => setZoomScale(Math.min(1.2, +(zoomScale + 0.1).toFixed(1)))}
-                  className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={() => setZoomScale(0.9)}
-                  className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 hover:text-white"
-                  title="Reset Zoom"
-                >
-                  Reset
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Right Action: Settings & Instant Mobile QR Connect */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow-glow-cyan transition-all"
+              title="Settings & Mobile Connect QR"
+            >
+              <QrCode className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Settings & Phone QR</span>
+            </button>
+          </div>
 
         </div>
       </div>
 
       {/* ────────────────────────── VIEWPORT RENDERING ────────────────────────── */}
 
-      {/* VIEWPORT 1: FLUID RESPONSIVE VIEW (DEFAULT) */}
+      {/* VIEWPORT 1: FLUID RESPONSIVE VIEW (DEFAULT & NATIVE MOBILE) */}
       {deviceMode === 'responsive' && (
         <div className="w-full flex-1">
           {children}
@@ -381,40 +372,7 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
         </div>
       )}
 
-      {/* VIEWPORT 5: MACBOOK PRO LAPTOP (1280 x 832 px) */}
-      {deviceMode === 'macbook' && (
-        <div className="w-full flex-1 py-10 px-4 flex flex-col items-center justify-center bg-[#020409]">
-          <div 
-            style={{ 
-              transform: `scale(${zoomScale})`, 
-              transformOrigin: 'top center',
-              width: '1280px',
-              height: '832px'
-            }}
-            className="rounded-3xl border-[10px] border-[#22283a] shadow-[0_0_80px_rgba(99,102,241,0.2)] bg-[#060913] flex flex-col overflow-hidden relative transition-all duration-300 ring-1 ring-slate-700/60"
-          >
-            {/* macOS Window Titlebar with Traffic Lights */}
-            <div className="w-full bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between text-xs font-mono text-slate-300 shrink-0">
-              <div className="flex items-center space-x-2">
-                <span className="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-sm" />
-                <span className="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm" />
-                <span className="ml-3 text-slate-300 font-bold">BioPulse AI Clinical Workstation — MacBook Pro</span>
-              </div>
-              <span className="text-[11px] text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-500/30">
-                1280 x 832 • Retina
-              </span>
-            </div>
-
-            {/* Viewport Scrollable App Content */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 no-scrollbar">
-              {children}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* VIEWPORT 6: DESKTOP 4K WORKSTATION (1440 x 900 px) */}
+      {/* VIEWPORT 5: DESKTOP 4K WORKSTATION (1440 x 900 px) */}
       {deviceMode === 'desktop' && (
         <div className="w-full flex-1 py-10 px-4 flex flex-col items-center justify-center bg-[#020409]">
           <div 
@@ -452,11 +410,10 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
         </div>
       )}
 
-      {/* VIEWPORT 7: MULTI-SCREEN QUAD SIMULTANEOUS GRID (DESKTOP + iPAD + iPHONE + ANDROID) */}
+      {/* VIEWPORT 6: MULTI-SCREEN QUAD SIMULTANEOUS GRID */}
       {deviceMode === 'multiscreen_grid' && (
         <div className="w-full flex-1 py-6 px-3 sm:px-6 bg-[#030611] space-y-6">
           
-          {/* Header Banner */}
           <div className="glass-card rounded-2xl p-4 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div className="flex items-center space-x-2">
               <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
@@ -476,7 +433,6 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
             </div>
           </div>
 
-          {/* 4 Screen Layout Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             {/* 1. SCREEN A: DOCTOR COMMAND CENTER (DESKTOP 6-COLS) */}
@@ -578,6 +534,18 @@ export const MultiDeviceViewportSimulator: React.FC<MultiDeviceViewportSimulator
 
         </div>
       )}
+
+      {/* Settings & Instant Mobile Connect Modal */}
+      <SettingsModal 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        deviceMode={deviceMode}
+        setDeviceMode={setDeviceMode}
+        activeRole={activeRole}
+        setActiveRole={setActiveRole}
+        autoDetectDevice={autoDetectDevice}
+        setAutoDetectDevice={setAutoDetectDevice}
+      />
 
     </div>
   );
