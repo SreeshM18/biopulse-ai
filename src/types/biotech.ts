@@ -1,10 +1,22 @@
 export type UserPortalRole = 'patient' | 'emergency' | 'doctor' | 'hospital';
 
+export interface AuthenticatedUser {
+  id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: UserPortalRole;
+  licenseNumber?: string;
+  department?: string;
+  hospitalAffiliation?: string;
+}
+
 export type TabType = 
   | 'command_center' 
   | 'nova_pharma'
   | 'nova_careguide'
   | 'nova_anatomy_twin'
+  | 'user_profile'
   | 'patient_monitor' 
   | 'organ_3d_twin'
   | 'nova_rescue'

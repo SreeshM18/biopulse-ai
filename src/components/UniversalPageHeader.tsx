@@ -37,6 +37,8 @@ interface UniversalPageHeaderProps {
 
 const TAB_METADATA: Partial<Record<TabType, { title: string; category: string; icon: React.ReactNode }>> = {
   command_center: { title: 'Command Center', category: 'Executive Hub', icon: <Activity className="w-4 h-4 text-cyan-400" /> },
+  user_profile: { title: 'Clinical Profiles (4 Roles Hub)', category: 'Identity & Access', icon: <UserCheck className="w-4 h-4 text-cyan-300 animate-pulse" /> },
+  nova_careguide: { title: 'NOVA CareGuide AI Medical Navigator', category: 'Clinical Guidance', icon: <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" /> },
   nova_pharma: { title: 'NOVA Pharma & Substance Universe', category: 'Pharmacology Intelligence', icon: <Pill className="w-4 h-4 text-pink-400" /> },
   nova_anatomy_twin: { title: '3D Holographic Anatomy Digital Twin', category: 'Biomechanics Twin', icon: <Brain className="w-4 h-4 text-cyan-400" /> },
   organ_3d_twin: { title: '3D Organ Multi-System Twin', category: 'Pathophysiology', icon: <Layers className="w-4 h-4 text-purple-400" /> },

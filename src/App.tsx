@@ -31,6 +31,8 @@ import { AlertsManager } from './components/AlertsManager';
 import { ClinicalNotesModal } from './components/ClinicalNotesModal';
 import { PatientRegistrationModal } from './components/PatientRegistrationModal';
 import { DatabaseAdminModal } from './components/DatabaseAdminModal';
+import { UserProfileHub } from './components/UserProfileHub';
+import { LogoutScreen } from './components/LogoutScreen';
 import { clinicalDb } from './services/clinicalDatabaseService';
 
 import { StructureViewer3D } from './components/StructureViewer3D';
@@ -45,10 +47,10 @@ import { PatientProfile, ProteinStructure, TabType, UserPortalRole, Prescription
 import { MedicalSpecialty } from './data/specialistDirectory';
 import { ShieldCheck, Activity, Radio, Layers, User, Stethoscope, Building2, ShieldAlert, Users, BedDouble, Clock, Calendar, Globe, Flame, Brain, Heart, Dna, Database } from 'lucide-react';
 
-type AppFlowState = 'welcome' | 'auth' | 'main';
+type AppFlowState = 'welcome' | 'auth' | 'main' | 'logout';
 
 export const App: React.FC = () => {
-  // Application Top-Level Lifecycle: 5s Welcome -> Manual Auth -> Main Clinical Dashboard
+  // Application Top-Level Lifecycle: 5s Welcome -> Manual Auth -> Main Clinical Dashboard -> Logout Screen
   const [appState, setAppState] = useState<AppFlowState>('welcome');
   const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
 
@@ -88,10 +90,9 @@ export const App: React.FC = () => {
     setAppState('main');
   };
 
-  // Logout handler
+  // Logout handler - Transition to dedicated Logout Screen
   const handleLogout = () => {
-    setCurrentUser(null);
-    setAppState('welcome');
+    setAppState('logout');
   };
 
   const handleAddPatient = (newPatient: PatientProfile) => {
@@ -130,6 +131,26 @@ export const App: React.FC = () => {
   // 2. STEP B: Complete Manual Authentication Portal (Sign In, Sign Up, Forgot Pass, 6-Digit OTP)
   if (appState === 'auth') {
     return <AuthPortal onAuthenticated={handleAuthenticated} />;
+  }
+
+  // 2.5 STEP B.5: Dedicated Logout & Session Termination Screen
+  if (appState === 'logout') {
+    return (
+      <LogoutScreen 
+        lastUser={currentUser}
+        lastRole={activeRole}
+        onRelogin={(role) => {
+          if (role) setActiveRole(role);
+          setCurrentUser(null);
+          setAppState('auth');
+        }}
+        onReturnToWelcome={() => {
+          setCurrentUser(null);
+          setAppState('welcome');
+        }}
+        onOpenDatabase={() => setIsDatabaseOpen(true)}
+      />
+    );
   }
 
   // 3. STEP C: Main BioPulse AI / NOVA Platform (After Successful OTP Verification)
@@ -178,6 +199,18 @@ export const App: React.FC = () => {
           />
 
           {/* === SECTION A: 4 ACCESS PORTALS & CLINICAL CORE === */}
+          {activeTab === 'user_profile' && (
+            <UserProfileHub 
+              currentUser={currentUser}
+              activeRole={activeRole}
+              setActiveRole={setActiveRole}
+              patient={selectedPatient}
+              setActiveTab={setActiveTab}
+              onOpenDatabase={() => setIsDatabaseOpen(true)}
+              onOpenRegister={() => setIsRegisterOpen(true)}
+            />
+          )}
+
           {activeTab === 'command_center' && (
             <CommandCenter 
               patients={patients}

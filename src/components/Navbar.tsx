@@ -61,6 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const patientMonitoringTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'command_center', label: 'Command', icon: <Activity className="w-4 h-4 text-cyan-400" /> },
+    { id: 'user_profile', label: 'Profiles (4 Roles)', icon: <User className="w-4 h-4 text-cyan-300 animate-pulse" /> },
     { id: 'nova_careguide', label: 'CareGuide AI', icon: <HeartHandshake className="w-4 h-4 text-emerald-400 animate-pulse" /> },
     { id: 'nova_pharma', label: 'NOVA Pharma (A–Z)', icon: <Pill className="w-4 h-4 text-pink-400" /> },
     { id: 'nova_anatomy_twin', label: '3D Anatomy', icon: <Brain className="w-4 h-4 text-cyan-400" /> },
@@ -191,14 +192,30 @@ export const Navbar: React.FC<NavbarProps> = ({
             
             {/* Authenticated User Badge */}
             {currentUser && (
-              <div className="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-xl bg-slate-900 border border-cyan-500/30 text-xs">
+              <button 
+                onClick={() => setActiveTab('user_profile')}
+                className="hidden sm:flex items-center space-x-2 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 text-xs transition-all shadow-glow-cyan cursor-pointer"
+                title="View All 4 Role Profiles (Doctor, Patient, SOS Paramedic, Hospital)"
+              >
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span className="font-bold text-white max-w-[110px] truncate">{currentUser.name}</span>
                 <span className="text-[9px] font-mono text-cyan-300 px-1 py-0.2 rounded bg-cyan-950">
                   {currentUser.role.toUpperCase()}
                 </span>
-              </div>
+              </button>
             )}
+
+            <button
+              onClick={() => setActiveTab('user_profile')}
+              className={`p-1.5 sm:p-2 rounded-xl text-xs font-semibold border transition-all ${
+                activeTab === 'user_profile'
+                  ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold shadow-glow-cyan'
+                  : 'bg-slate-850 hover:bg-slate-800 text-cyan-300 border-slate-700'
+              }`}
+              title="4-Persona Clinical Profile Hub (Doctor, Patient, SOS, Hospital)"
+            >
+              <User className="w-4 h-4" />
+            </button>
 
             <button
               onClick={onOpenRegister}
