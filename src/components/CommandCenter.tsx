@@ -166,49 +166,49 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           </div>
 
           {/* Hospital-Wide Triage Metric Counters */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1 border-t border-slate-800/80">
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 pt-2 border-t border-slate-800/80">
+            <div className="p-2.5 sm:p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Total Monitored
               </span>
-              <div className="text-xl font-black text-white font-mono mt-0.5">
+              <div className="text-lg sm:text-xl font-black text-white font-mono mt-0.5">
                 {patients.length + 122}
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-rose-950/20 border border-rose-500/40">
-              <span className="text-[10px] font-bold text-rose-300 uppercase tracking-wider flex items-center space-x-1">
+            <div className="p-2.5 sm:p-3 rounded-xl bg-rose-950/20 border border-rose-500/40">
+              <span className="text-[9px] sm:text-[10px] font-bold text-rose-300 uppercase tracking-wider flex items-center space-x-1">
                 <Flame className="w-3 h-3 text-rose-400" />
                 <span>Critical Risk</span>
               </span>
-              <div className="text-xl font-black text-rose-400 font-mono mt-0.5">
+              <div className="text-lg sm:text-xl font-black text-rose-400 font-mono mt-0.5">
                 {patients.filter(p => p.riskAssessment.riskLevel === 'CRITICAL').length}
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-500/30">
-              <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
+            <div className="p-2.5 sm:p-3 rounded-xl bg-amber-950/20 border border-amber-500/30">
+              <span className="text-[9px] sm:text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
                 High Risk
               </span>
-              <div className="text-xl font-black text-amber-400 font-mono mt-0.5">
+              <div className="text-lg sm:text-xl font-black text-amber-400 font-mono mt-0.5">
                 {patients.filter(p => p.riskAssessment.riskLevel === 'HIGH').length + 8}
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="p-2.5 sm:p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Moderate Risk
               </span>
-              <div className="text-xl font-black text-yellow-400 font-mono mt-0.5">
+              <div className="text-lg sm:text-xl font-black text-yellow-400 font-mono mt-0.5">
                 {patients.filter(p => p.riskAssessment.riskLevel === 'MODERATE').length + 20}
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="col-span-2 sm:col-span-1 p-2.5 sm:p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Stable / Low
               </span>
-              <div className="text-xl font-black text-emerald-400 font-mono mt-0.5">
+              <div className="text-lg sm:text-xl font-black text-emerald-400 font-mono mt-0.5">
                 {patients.filter(p => p.riskAssessment.riskLevel === 'LOW').length + 92}
               </div>
             </div>
@@ -217,34 +217,34 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
       </div>
 
       {/* Patient Triage Grid Filters & Search */}
-      <div className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="glass-card rounded-2xl p-3.5 sm:p-6 border border-slate-800 space-y-3 sm:space-y-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h2 className="text-lg font-extrabold text-white flex items-center space-x-2">
-              <BedDouble className="w-5 h-5 text-cyan-400" />
+            <h2 className="text-base sm:text-lg font-extrabold text-white flex items-center space-x-2">
+              <BedDouble className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
               <span>Active Inpatient Triage Roster ({filteredPatients.length} Active in Unit)</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
               Ranked dynamically by Explainable AI Deterioration Risk and NEWS2 scores.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search Patient, Bed, MRN..."
-                className="w-full sm:w-60 bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"
+                className="w-full sm:w-60 bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 sm:py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"
               />
             </div>
 
             <select
               value={selectedWard}
               onChange={(e) => setSelectedWard(e.target.value)}
-              className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+              className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 sm:py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
             >
               <option value="All">All Wards</option>
               <option value="ICU">ICU (Intensive Care)</option>
@@ -256,7 +256,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             <select
               value={filterSeverity}
               onChange={(e) => setFilterSeverity(e.target.value)}
-              className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+              className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 sm:py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
             >
               <option value="All">All Risk Levels</option>
               <option value="CRITICAL">🔴 Critical Only</option>
@@ -268,7 +268,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
 
         {/* Live Patient Triage Cards Table */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-2.5 sm:space-y-3 pt-1 sm:pt-2">
           {filteredPatients.map((patient) => {
             const isSelected = selectedPatient.id === patient.id;
             const risk = patient.riskAssessment.riskLevel;
