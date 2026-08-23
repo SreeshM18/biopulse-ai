@@ -24,6 +24,7 @@ import { HospitalReportsManager } from './components/HospitalReportsManager';
 import { XAIRiskPredictor } from './components/XAIRiskPredictor';
 import { ClinicalKnowledgeSearch } from './components/ClinicalKnowledgeSearch';
 import { NovaMedSearch } from './components/NovaMedSearch';
+import { NovaCareGuide } from './components/NovaCareGuide';
 import { EmergencyQRPassport } from './components/EmergencyQRPassport';
 import { PrescriptionVault } from './components/PrescriptionVault';
 import { AlertsManager } from './components/AlertsManager';
@@ -280,6 +281,13 @@ export const App: React.FC = () => {
 
           {activeTab === 'clinical_search' && (
             <NovaMedSearch 
+              setActiveTab={setActiveTab}
+            />
+          )}
+
+          {activeTab === 'nova_careguide' && (
+            <NovaCareGuide 
+              patient={selectedPatient}
               setActiveTab={setActiveTab}
             />
           )}

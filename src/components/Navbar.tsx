@@ -7,6 +7,7 @@ import {
   AlertTriangle, 
   Stethoscope, 
   Heart, 
+  HeartHandshake,
   UserPlus, 
   Layers, 
   Dna, 
@@ -57,7 +58,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const patientMonitoringTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'command_center', label: 'Command', icon: <Activity className="w-4 h-4 text-cyan-400" /> },
-    { id: 'nova_pharma', label: 'NOVA Pharma (A–Z)', icon: <Pill className="w-4 h-4 text-pink-400 animate-pulse" /> },
+    { id: 'nova_careguide', label: 'CareGuide AI', icon: <HeartHandshake className="w-4 h-4 text-emerald-400 animate-pulse" /> },
+    { id: 'nova_pharma', label: 'NOVA Pharma (A–Z)', icon: <Pill className="w-4 h-4 text-pink-400" /> },
     { id: 'nova_anatomy_twin', label: '3D Anatomy', icon: <Brain className="w-4 h-4 text-cyan-400" /> },
     { id: 'organ_3d_twin', label: '3D Organs', icon: <Layers className="w-4 h-4 text-purple-400" /> },
     { id: 'nova_rescue', label: 'SOS Rescue', icon: <Flame className="w-4 h-4 text-rose-500 animate-pulse" /> },

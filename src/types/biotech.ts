@@ -3,6 +3,7 @@ export type UserPortalRole = 'patient' | 'emergency' | 'doctor' | 'hospital';
 export type TabType = 
   | 'command_center' 
   | 'nova_pharma'
+  | 'nova_careguide'
   | 'nova_anatomy_twin'
   | 'patient_monitor' 
   | 'organ_3d_twin'
@@ -803,4 +804,138 @@ export interface ColdChainLog {
   activeVaccinesStored: string[];
   backupGeneratorActive: boolean;
 }
+
+/* =========================================================================
+   NOVA CAREGUIDE & CLINICAL GUIDANCE TYPES
+   ========================================================================= */
+
+export interface VerifiedDrugStrengthFormulation {
+  dosageForm: PharmaDosageForm;
+  route: PharmaAdministrationRoute;
+  availableStrengths: {
+    strengthValue: number | string;
+    unit: 'mg' | 'mcg' | 'g' | 'mg/mL' | 'mg/5 mL' | '%' | 'IU' | 'units/mL' | 'micrograms/dose' | 'mg/100 mL';
+    displayLabel: string;
+    standardDoseDescription: string;
+  }[];
+  typicalOnsetTime: string;
+  typicalDuration: string;
+  administrationInstructions: string;
+}
+
+export interface ComprehensiveClinicalMonograph {
+  id: string;
+  brandNames: string[];
+  genericName: string;
+  activeIngredient: string;
+  chemicalClass: string;
+  drugClass: string;
+  medicalSpecialties: string[];
+  approvedUses: string[];
+  offLabelUses?: string[];
+  formulations: VerifiedDrugStrengthFormulation[];
+  pharmacodynamicsMechanism: string;
+  clinicalBenefits: string[];
+  clinicalLimitations: string[];
+  commonSideEffects: string[];
+  seriousAdverseEffects: string[];
+  allergyInformation: string;
+  contraindications: string[];
+  drugInteractionsSummary: string;
+  alcoholInteraction: {
+    severity: 'LOW' | 'CAUTION' | 'HIGH' | 'CRITICAL';
+    guidance: string;
+  };
+  foodInteractions: string[];
+  diseaseInteractions: {
+    disease: string;
+    risk: 'CAUTION' | 'CONTRAINDICATED';
+    explanation: string;
+  }[];
+  pregnancyGuidance: {
+    fdaCategoryOrTrimesterRule: string;
+    isCompatible: boolean;
+    clinicalDetail: string;
+  };
+  breastfeedingGuidance: string;
+  pediatricGuidance: string;
+  geriatricBeersGuidance: string;
+  renalDoseAdjustment: string; // eGFR considerations
+  hepaticDoseAdjustment: string;
+  cardiacBloodPressureConsiderations: string;
+  diabetesBloodSugarConsiderations: string;
+  overdoseWarningAndAntidote: string;
+  storageConditions: string;
+  legalPrescriptionClassification: PharmaLegalStatus;
+  primaryManufacturers: string[];
+  recalledLotsOrWarnings?: string;
+  references: string[]; // FDA DailyMed, RxNorm, WHO, etc.
+}
+
+export interface CareGuideSymptomRecord {
+  id: string;
+  symptomName: string;
+  aliases: string[];
+  category: 'General / Pain / Fever' | 'Respiratory / ENT' | 'Gastrointestinal' | 'Dermatology' | 'Women’s Health & Reproductive' | 'Mental Health / Sleep';
+  briefOverview: string;
+  commonlyUsedMedicineCategories: {
+    categoryName: string;
+    pharmacologicalRole: string;
+    representativeExamples: string[];
+    prescriptionRequirement: 'OTC' | 'Prescription' | 'Pharmacist-Only';
+  }[];
+  evidenceBasedSelfCareMeasures: string[];
+  pediatricCareNotes?: string;
+  pregnancyCareNotes?: string;
+  emergencyRedFlagsChecklist: string[];
+}
+
+export interface ContraceptionMethodRecord {
+  id: string;
+  methodName: string;
+  category: 'Barrier' | 'Combined Oral Contraception' | 'Progestin-Only Pills' | 'Emergency Contraception' | 'Injections' | 'Implants' | 'Vaginal Rings' | 'Transdermal Patches' | 'IUD / IUS' | 'Permanent Contraception';
+  howItWorks: string;
+  pregnancyPreventionRate: string; // e.g. "99% with perfect use, 93% with typical use"
+  providesStiProtection: boolean;
+  stiProtectionExplanation: string;
+  durationOfEfficacy: string;
+  advantages: string[];
+  disadvantages: string[];
+  commonSideEffects: string[];
+  seriousWarnings: string[];
+  whoMayNeedMedicalReview: string;
+  prescriptionRequirement: 'OTC / Non-Prescription' | 'Prescription Only' | 'Clinic / Procedure Required';
+}
+
+export interface SexualHealthTopicRecord {
+  id: string;
+  topicTitle: string;
+  slug: string;
+  shortSummary: string;
+  keyPillars: {
+    title: string;
+    content: string;
+  }[];
+  emergencyProtocol?: {
+    triggerEvent: string; // e.g. "Condom broke or slipped"
+    timeCriticalWindow: string; // "Within 72 to 120 hours"
+    recommendedActionSteps: string[];
+    distinctionVsAbortion: string;
+  };
+}
+
+export interface BodyPartSystemRecord {
+  id: string;
+  organName: string;
+  aliases: string[];
+  icon: string;
+  commonConditions: string[];
+  keyMedicineCategories: {
+    categoryName: string;
+    primaryFormulations: string[];
+    commonDrugs: string[];
+  }[];
+  emergencyRedFlags: string[];
+}
+
 

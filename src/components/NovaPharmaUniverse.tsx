@@ -39,7 +39,8 @@ import {
   Zap,
   Award,
   Biohazard,
-  ShieldX
+  ShieldX,
+  HeartHandshake
 } from 'lucide-react';
 import { 
   MasterDrugRecord, 
@@ -64,6 +65,7 @@ import {
 
 import { NovaMedSearch } from './NovaMedSearch';
 import { NovaMedGuard } from './NovaMedGuard';
+import { NovaCareGuide } from './NovaCareGuide';
 
 interface NovaPharmaUniverseProps {
   patient?: PatientProfile;
@@ -71,6 +73,7 @@ interface NovaPharmaUniverseProps {
 }
 
 type PharmaViewTab = 
+  | 'careguide_ai'
   | 'medsearch_ai'
   | 'az_browser' 
   | 'injections_universe'
@@ -412,9 +415,10 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs Across 15 Pharma Modules */}
+      {/* Navigation Sub-Tabs Across 16 Pharma Modules */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 no-scrollbar border-b border-slate-800">
         {[
+          { id: 'careguide_ai', label: '🩺 NOVA CAREGUIDE', icon: <HeartHandshake className="w-4 h-4 text-emerald-400 animate-pulse" /> },
           { id: 'medsearch_ai', label: '🔍 Google-like MEDSEARCH (AI)', icon: <Search className="w-4 h-4 text-cyan-300 animate-pulse" /> },
           { id: 'az_browser', label: '1. A–Z Substance Browser', icon: <Database className="w-4 h-4 text-cyan-400" /> },
           { id: 'injections_universe', label: '2. Injections & Y-Site Matrix', icon: <Syringe className="w-4 h-4 text-emerald-400" /> },
@@ -426,7 +430,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
           { id: 'biologics_gene', label: '8. Biologics & ADCs', icon: <Dna className="w-4 h-4 text-cyan-300" /> },
           { id: 'verify_counterfeit', label: '9. Counterfeit & Adulteration', icon: <Scan className="w-4 h-4 text-rose-400" /> },
           { id: 'molecule_3d', label: '10. 3D Molecule & ADME', icon: <Sparkles className="w-4 h-4 text-purple-300" /> },
-          { id: 'interact', label: '11. NOVA INTERACT', icon: <Zap className="w-4 h-4 text-amber-400" /> },
+          { id: 'interact', label: '11. NOVA MEDGUARD AI', icon: <ShieldAlert className="w-4 h-4 text-cyan-400" /> },
           { id: 'high_alert_safe', label: '12. High-Alert & 5-Rights', icon: <ShieldAlert className="w-4 h-4 text-rose-400" /> },
           { id: 'adr_vigilance', label: '13. Pharmacovigilance', icon: <FileText className="w-4 h-4 text-emerald-400" /> },
           { id: 'stock_coldchain', label: '14. Cold-Chain IoT', icon: <Snowflake className="w-4 h-4 text-cyan-300" /> },
@@ -448,6 +452,16 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
           );
         })}
       </div>
+
+      {/* =========================================================================
+          MODULE 0A: NOVA CAREGUIDE ("WHAT CAN I TAKE FOR THIS?")
+          ========================================================================= */}
+      {activePharmaTab === 'careguide_ai' && (
+        <NovaCareGuide 
+          patient={patient}
+          setActiveTab={setActiveTab}
+        />
+      )}
 
       {/* =========================================================================
           MODULE 0: GOOGLE-LIKE UNIVERSAL MEDSEARCH ENGINE (FUZZY, TYPO, SYMPTOM)
