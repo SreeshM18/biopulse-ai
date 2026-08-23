@@ -6,6 +6,7 @@ import { JudgePitchBanner } from './components/JudgePitchBanner';
 import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
 import { SettingsModal } from './components/SettingsModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { UniversalPageHeader } from './components/UniversalPageHeader';
 import { CommandCenter } from './components/CommandCenter';
 import { NovaPharmaUniverse } from './components/NovaPharmaUniverse';
 import { NovaAnatomyTwin3D } from './components/NovaAnatomyTwin3D';
@@ -162,6 +163,14 @@ export const App: React.FC = () => {
         {/* Main Workspace Container */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
           
+          {/* Universal Page Header & Back Navigation for all non-root tabs */}
+          <UniversalPageHeader 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            selectedPatient={selectedPatient}
+            onOpenPatientNotes={() => setIsNotesOpen(true)}
+          />
+
           {/* === SECTION A: 4 ACCESS PORTALS & CLINICAL CORE === */}
           {activeTab === 'command_center' && (
             <CommandCenter 

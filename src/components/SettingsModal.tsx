@@ -78,25 +78,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="glass-card w-full max-w-2xl rounded-3xl border border-cyan-500/40 shadow-[0_0_80px_rgba(6,182,212,0.25)] bg-[#070b18] overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-2 sm:p-4 pt-10 sm:pt-6 pb-20 bg-black/85 backdrop-blur-md overflow-y-auto animate-fade-in">
+      <div className="glass-card w-full max-w-2xl rounded-3xl border border-cyan-500/40 shadow-[0_0_80px_rgba(6,182,212,0.25)] bg-[#070b18] overflow-hidden flex flex-col max-h-[86dvh] sm:max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 p-[1.5px] shadow-glow-cyan">
+        <div className="p-4 sm:p-5 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <button
+              onClick={onClose}
+              className="sm:hidden flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-bold mr-1"
+            >
+              <span>← Back</span>
+            </button>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 p-[1.5px] shadow-glow-cyan shrink-0">
               <div className="w-full h-full bg-[#090e1d] rounded-[14px] flex items-center justify-center">
-                <Share2 className="w-5 h-5 text-cyan-400 animate-pulse" />
+                <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 animate-pulse" />
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-black text-white flex items-center space-x-2">
+              <h3 className="text-sm sm:text-lg font-black text-white flex items-center space-x-2">
                 <span>Share App to Another Device</span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/30">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/30">
                   Live Sync
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 font-mono">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-mono line-clamp-1">
                 Open on iPhone, Android, iPad, or any external device
               </p>
             </div>
@@ -105,6 +111,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <button
             onClick={onClose}
             className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
