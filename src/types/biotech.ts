@@ -1039,7 +1039,7 @@ export interface VerifiedDrugStrengthFormulation {
   route: PharmaAdministrationRoute;
   availableStrengths: {
     strengthValue: number | string;
-    unit: 'mg' | 'mcg' | 'g' | 'mg/mL' | 'mg/5 mL' | '%' | 'IU' | 'units/mL' | 'micrograms/dose' | 'mg/100 mL';
+    unit: 'mg' | 'mcg' | 'g' | 'mg/mL' | 'mg/5 mL' | 'mg/2.5 mL' | '%' | 'IU' | 'units/mL' | 'micrograms/dose' | 'mcg/actuation' | 'mg/100 mL' | string;
     displayLabel: string;
     standardDoseDescription: string;
   }[];

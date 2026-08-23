@@ -74,6 +74,8 @@ export const NovaCareGuide: React.FC<NovaCareGuideProps> = ({
   const [selectedStrengthIndex, setSelectedStrengthIndex] = useState<number>(0);
   const [selectedBodyPart, setSelectedBodyPart] = useState<BodyPartSystemRecord>(BODY_PARTS_DATABASE[0]);
   const [emergencyProtocolActive, setEmergencyProtocolActive] = useState<boolean>(false);
+  const [aiSummary, setAiSummary] = useState<string | null>('Showing clinical guidance for common symptoms & verified pharmacological monographs. Type any problem or medicine name above.');
+  const [matchedTitle, setMatchedTitle] = useState<string | null>('Symptom & Medication Hub');
 
   // Active Formulation & Strength calculation
   const activeFormulation: VerifiedDrugStrengthFormulation = useMemo(() => {
@@ -88,13 +90,16 @@ export const NovaCareGuide: React.FC<NovaCareGuideProps> = ({
   const handleExecuteSearch = (query: string) => {
     setSearchQuery(query);
     const parsed = parseNaturalCareGuideQuery(query);
+    setAiSummary(parsed.directAnswerSummary || null);
+    setMatchedTitle(parsed.primaryMatchTitle);
 
     switch (parsed.intentType) {
       case 'SEXUAL_HEALTH_OR_CONTRACEPTION':
-        setActiveTabLocal('sexual_health');
         if (parsed.emergencyFailProtocolActive) {
           setEmergencyProtocolActive(true);
           setActiveTabLocal('emergency_contra');
+        } else {
+          setActiveTabLocal('sexual_health');
         }
         if (parsed.contraceptionRecord) setSelectedContraception(parsed.contraceptionRecord);
         break;
@@ -104,7 +109,21 @@ export const NovaCareGuide: React.FC<NovaCareGuideProps> = ({
         if (parsed.monographRecord) {
           setSelectedMonograph(parsed.monographRecord);
           setSelectedFormulationIndex(0);
-          setSelectedStrengthIndex(0);
+
+          // Auto-select exact target strength if mentioned (e.g. 50 mg)
+          if (parsed.targetStrengthValue !== undefined) {
+            const form = parsed.monographRecord.formulations[0];
+            if (form) {
+              const matchedStrIdx = form.availableStrengths.findIndex(s => s.strengthValue === parsed.targetStrengthValue);
+              if (matchedStrIdx >= 0) {
+                setSelectedStrengthIndex(matchedStrIdx);
+              } else {
+                setSelectedStrengthIndex(0);
+              }
+            }
+          } else {
+            setSelectedStrengthIndex(0);
+          }
         }
         break;
 
@@ -198,6 +217,32 @@ export const NovaCareGuide: React.FC<NovaCareGuideProps> = ({
               </button>
             ))}
           </div>
+
+          {/* AI Direct Guidance Summary Card */}
+          {aiSummary && (
+            <div className="p-4 rounded-2xl bg-[#030818]/95 border-2 border-cyan-400 shadow-glow-cyan space-y-2 animate-fade-in text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/50 flex items-center space-x-1">
+                    <Sparkles className="w-3 h-3 text-cyan-400 animate-spin" style={{ animationDuration: '6s' }} />
+                    <span>AI CLINICAL GUIDANCE DOSSIER</span>
+                  </span>
+                  {matchedTitle && (
+                    <span className="text-white font-black">{matchedTitle}</span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setAiSummary(null)}
+                  className="text-[10px] font-mono text-slate-400 hover:text-white"
+                >
+                  Dismiss
+                </button>
+              </div>
+              <p className="text-slate-200 leading-relaxed font-sans text-xs sm:text-sm">
+                {aiSummary}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

@@ -996,6 +996,153 @@ export const COMPREHENSIVE_MONOGRAPHS_DATABASE: ComprehensiveClinicalMonograph[]
     legalPrescriptionClassification: 'OTC',
     primaryManufacturers: ['Micro Labs (Dolo)', 'GlaxoSmithKline (Calpol/Crocin)', 'Johnson & Johnson (Tylenol)', 'Sanofi'],
     references: ['FDA DailyMed Acetaminophen Monograph', 'RxNorm 161', 'WHO Model List of Essential Medicines', 'Rumack-Matthew Nomogram Guidelines']
+  },
+  {
+    id: 'mono-amlodipine',
+    brandNames: ['Norvasc', 'Amlovas', 'Amlong', 'Istin', 'Amlo'],
+    genericName: 'Amlodipine Besylate',
+    activeIngredient: 'Amlodipine Besylate',
+    chemicalClass: 'Dihydropyridine Derivative',
+    drugClass: 'Calcium Channel Blocker (CCB)',
+    medicalSpecialties: ['Cardiology', 'Internal Medicine', 'Primary Care'],
+    approvedUses: [
+      'Treatment of Essential Hypertension in adults and children ≥6 years.',
+      'Chronic Stable Angina Pectoris and Vasospastic (Prinzmetal’s) Angina.'
+    ],
+    formulations: [
+      {
+        dosageForm: 'Tablets',
+        route: 'Oral',
+        availableStrengths: [
+          { strengthValue: 2.5, unit: 'mg', displayLabel: '2.5 mg Tablet', standardDoseDescription: 'Initial dose for elderly, small/fragile patients, or hepatic insufficiency.' },
+          { strengthValue: 5, unit: 'mg', displayLabel: '5 mg Tablet', standardDoseDescription: 'Standard initial therapeutic dose for hypertension and angina.' },
+          { strengthValue: 10, unit: 'mg', displayLabel: '10 mg Tablet', standardDoseDescription: 'Maximum daily dose for uncontrolled hypertension.' }
+        ],
+        typicalOnsetTime: 'Gradual onset over 24-48 hours (peak steady-state in 7-14 days)',
+        typicalDuration: '24 hours (long terminal half-life 30-50 hours)',
+        administrationInstructions: 'Take once daily with or without food, at approximately the same time each day.'
+      }
+    ],
+    pharmacodynamicsMechanism: 'Inhibits transmembrane calcium influx through L-type voltage-gated calcium channels in vascular smooth muscle and myocardial tissue, resulting in peripheral arterial vasodilation and reduction in total peripheral resistance (afterload).',
+    clinicalBenefits: [
+      'Proven reduction in stroke and cardiovascular morbidity in large trials (ALLHAT).',
+      'Once-daily dosing promotes high medication adherence.',
+      'Metabolically neutral: Does not affect blood glucose or lipid profiles.'
+    ],
+    clinicalLimitations: [
+      'Does not provide immediate acute blood pressure lowering (unsuitable for hypertensive emergencies).',
+      'Dose-dependent peripheral pedal edema occurs in ~10% of patients at 10mg dose.'
+    ],
+    commonSideEffects: ['Peripheral ankle edema (10%)', 'Facial flushing', 'Dizziness', 'Headache', 'Palpitations'],
+    seriousAdverseEffects: [
+      'Worsening angina or acute myocardial infarction upon initiation or dose increase in severe obstructive CAD.',
+      'Severe systemic hypotension with syncope.'
+    ],
+    allergyInformation: 'Hypersensitivity to amlodipine or other dihydropyridines (Nifedipine, Felodipine).',
+    contraindications: [
+      'Severe hypotension (systolic BP < 90 mmHg).',
+      'Cardiogenic shock or severe aortic stenosis.'
+    ],
+    drugInteractionsSummary: 'Strong CYP3A4 inhibitors (Ketoconazole, Clarithromycin) increase amlodipine exposure. Simvastatin daily dose must not exceed 20 mg when co-prescribed with amlodipine.',
+    alcoholInteraction: {
+      severity: 'CAUTION',
+      guidance: 'Alcohol potentiates vasodilatory hypotension and dizziness.'
+    },
+    foodInteractions: ['Grapefruit juice may slightly increase amlodipine bioavailability.'],
+    diseaseInteractions: [
+      { disease: 'Severe Hepatic Impairment', risk: 'CAUTION', explanation: 'Decreased clearance; initiate therapy at 2.5 mg daily.' }
+    ],
+    pregnancyGuidance: {
+      fdaCategoryOrTrimesterRule: 'FDA Category C',
+      isCompatible: false,
+      clinicalDetail: 'Limited human data. Labetalol or Nifedipine are preferred first-line antihypertensives in pregnancy.'
+    },
+    breastfeedingGuidance: 'Present in human breast milk in small quantities; monitor nursing infant.',
+    pediatricGuidance: 'Approved for hypertension in pediatric patients aged 6 to 17 years (2.5 mg to 5 mg once daily).',
+    geriatricBeersGuidance: 'Start with 2.5 mg daily in elderly patients ≥65 years.',
+    renalDoseAdjustment: 'No dose adjustment required in renal impairment or hemodialysis.',
+    hepaticDoseAdjustment: 'Severe hepatic impairment: Start at 2.5 mg daily.',
+    cardiacBloodPressureConsiderations: 'Causes peripheral arterial dilation with no negative inotropic cardiac depression at standard doses.',
+    diabetesBloodSugarConsiderations: 'Safe and metabolically neutral in diabetic hypertension.',
+    overdoseWarningAndAntidote: 'Overdose leads to profound peripheral vasodilation and reflex tachycardia followed by shock. Treat with active charcoal, IV calcium gluconate, vasoconstrictors (norepinephrine), and high-dose insulin euglycemic therapy (HIET).',
+    storageConditions: 'Store at 15°C to 30°C (59°F to 86°F).',
+    legalPrescriptionClassification: 'Prescription',
+    primaryManufacturers: ['Pfizer (Norvasc)', 'Cipla', 'Sun Pharma', 'Mylan'],
+    references: ['FDA DailyMed Norvasc Monograph', 'AHA/ACC Hypertension Guidelines']
+  },
+  {
+    id: 'mono-salbutamol',
+    brandNames: ['Ventolin', 'Asthalin', 'ProAir', 'Proventil'],
+    genericName: 'Salbutamol / Albuterol Sulfate',
+    activeIngredient: 'Albuterol Sulfate / Salbutamol',
+    chemicalClass: 'Sympathomimetic Beta-2 Agonist',
+    drugClass: 'Short-Acting Beta-2 Agonist (SABA) Bronchodilator',
+    medicalSpecialties: ['Pulmonology', 'Emergency Medicine', 'Pediatrics', 'Critical Care'],
+    approvedUses: [
+      'Rapid relief of acute bronchospasm in Asthma, COPD, and Chronic Bronchitis.',
+      'Prevention of Exercise-Induced Bronchospasm (EIB).',
+      'Emergency adjunctive treatment for severe Hyperkalemia.'
+    ],
+    formulations: [
+      {
+        dosageForm: 'Inhalers',
+        route: 'Inhaled',
+        availableStrengths: [
+          { strengthValue: 100, unit: 'mcg/actuation', displayLabel: '100 mcg / actuation MDI (Ventolin)', standardDoseDescription: '1 to 2 puffs inhaled every 4-6 hours PRN for acute wheezing / shortness of breath.' },
+          { strengthValue: 90, unit: 'mcg/actuation', displayLabel: '90 mcg / actuation (US ProAir)', standardDoseDescription: '1 to 2 inhalations every 4 to 6 hours.' }
+        ],
+        typicalOnsetTime: '5 to 15 minutes',
+        typicalDuration: '4 to 6 hours',
+        administrationInstructions: 'Shake canister well. Inhale deeply while pressing canister, hold breath for 10 seconds. Use spacer chamber for optimal lung deposition.'
+      },
+      {
+        dosageForm: 'Nebulizer solutions',
+        route: 'Inhaled',
+        availableStrengths: [
+          { strengthValue: 2.5, unit: 'mg/2.5 mL', displayLabel: '2.5 mg / 2.5 mL Respules', standardDoseDescription: 'Administer via jet nebulizer over 10-15 minutes for acute asthma exacerbation.' }
+        ],
+        typicalOnsetTime: '5 minutes',
+        typicalDuration: '4 to 6 hours',
+        administrationInstructions: 'Place respule contents into nebulizer cup and breathe calmly with mask or mouthpiece.'
+      }
+    ],
+    pharmacodynamicsMechanism: 'Selective agonist at beta-2 adrenergic receptors on bronchial smooth muscle, activating adenylate cyclase to increase cyclic AMP, causing smooth muscle relaxation and bronchodilation.',
+    clinicalBenefits: ['Rapid rescue within 5 minutes', 'High pulmonary selectivity with minimal cardiac beta-1 stimulation when inhaled properly.'],
+    clinicalLimitations: ['Does not treat chronic airway inflammation; must be paired with Inhaled Corticosteroids (ICS) for maintenance.'],
+    commonSideEffects: ['Fine hand tremor (10%)', 'Tachycardia / Palpitations', 'Nervousness / Restlessness', 'Headache'],
+    seriousAdverseEffects: [
+      'Paradoxical Bronchospasm with immediate wheezing after dosing.',
+      'Cardiac Arrhythmias (Supraventricular Tachycardia, AFib) in high-dose nebulization.',
+      'Severe Hypokalemia and Lactic Acidosis with frequent high doses.'
+    ],
+    allergyInformation: 'Hypersensitivity to albuterol or propellant excipients.',
+    contraindications: ['Known hypersensitivity.'],
+    drugInteractionsSummary: 'Non-selective Beta-blockers (Propranolol, Timolol eye drops) antagonize bronchodilation and trigger severe bronchospasm.',
+    alcoholInteraction: {
+      severity: 'LOW',
+      guidance: 'No direct metabolic interaction; alcohol can irritate hyperreactive airways.'
+    },
+    foodInteractions: ['None.'],
+    diseaseInteractions: [
+      { disease: 'Severe Cardiac Arrhythmias / CAD', risk: 'CAUTION', explanation: 'Beta-1 stimulation may accelerate heart rate.' }
+    ],
+    pregnancyGuidance: {
+      fdaCategoryOrTrimesterRule: 'FDA Category C',
+      isCompatible: true,
+      clinicalDetail: 'Drug of choice for acute asthma rescue in pregnancy. Fetal hypoxia from untreated asthma is dangerous.'
+    },
+    breastfeedingGuidance: 'Inhaled route produces negligible systemic blood levels; fully compatible with lactation.',
+    pediatricGuidance: 'Approved for children ≥4 years via MDI with spacer; approved for all pediatric ages via nebulizer.',
+    geriatricBeersGuidance: 'Use standard inhaled doses; monitor resting heart rate in CAD.',
+    renalDoseAdjustment: 'No dose adjustment required.',
+    hepaticDoseAdjustment: 'No dose adjustment required.',
+    cardiacBloodPressureConsiderations: 'May cause transient sinus tachycardia (10-20 bpm increase).',
+    diabetesBloodSugarConsiderations: 'High doses stimulate glycogenolysis, causing mild transient hyperglycemia.',
+    overdoseWarningAndAntidote: 'Overdose presents with severe tachycardia, tremors, hypokalemia, and metabolic acidosis. Administer cardio-selective beta-1 blocker (Metoprolol) cautiously if life-threatening tachyarrhythmia occurs.',
+    storageConditions: 'Store between 15°C to 25°C. Do not puncture or incinerate pressurised canister.',
+    legalPrescriptionClassification: 'Prescription',
+    primaryManufacturers: ['GlaxoSmithKline (Ventolin)', 'Cipla (Asthalin)', 'Teva (ProAir)'],
+    references: ['GINA Global Strategy for Asthma Management', 'FDA Ventolin Inhalation Aerosol Labeling']
   }
 ];
 
@@ -1020,10 +1167,25 @@ export interface CareGuideIntentResult {
   bodyPartRecord?: BodyPartSystemRecord;
   monographRecord?: ComprehensiveClinicalMonograph;
   emergencyFailProtocolActive?: boolean;
+  targetStrengthValue?: number;
+  targetStrengthUnit?: string;
+  directAnswerSummary?: string;
 }
 
 export function parseNaturalCareGuideQuery(rawQuery: string): CareGuideIntentResult {
   const query = rawQuery.toLowerCase().trim();
+
+  // Extract Numeric Strength from Query if present (e.g. "50 mg", "50mg", "650 mg", "100 mcg", "2.5 mg")
+  let extractedStrengthVal: number | undefined;
+  let extractedStrengthUnit: string | undefined;
+  const strengthMatch = query.match(/\b(\d+(?:\.\d+)?)\s*(mg|mcg|µg|g|iu|units)?\b/i);
+  if (strengthMatch) {
+    const num = parseFloat(strengthMatch[1]);
+    if (!isNaN(num) && num > 0) {
+      extractedStrengthVal = num;
+      extractedStrengthUnit = strengthMatch[2]?.toLowerCase() || 'mg';
+    }
+  }
 
   // 1. Check for Emergency Contraception / Contraception Failure Triggers
   if (
@@ -1042,7 +1204,8 @@ export function parseNaturalCareGuideQuery(rawQuery: string): CareGuideIntentRes
       primaryMatchTitle: 'Emergency Contraception & Failure Protocol',
       sexualHealthTopic: topic,
       contraceptionRecord: emergencyMethod,
-      emergencyFailProtocolActive: true
+      emergencyFailProtocolActive: true,
+      directAnswerSummary: '🚨 EMERGENCY CONTRACEPTION PROTOCOL: Act immediately within 24 to 72 hours. Take Levonorgestrel 1.5mg (effective up to 72h) or Ulipristal Acetate 30mg (effective up to 120h). If HIV exposure is possible, initiate HIV PEP within 72 hours.'
     };
   }
 
@@ -1064,45 +1227,68 @@ export function parseNaturalCareGuideQuery(rawQuery: string): CareGuideIntentRes
       primaryMatchTitle: 'Sexual Health, Protection & Contraception Hub',
       sexualHealthTopic: topic,
       contraceptionRecord: barrierMethod,
-      emergencyFailProtocolActive: false
+      emergencyFailProtocolActive: false,
+      directAnswerSummary: '🛡️ SEXUAL HEALTH & PROTECTION: Use the Dual Protection Strategy (Barrier Condom for STI prevention + Hormonal/IUD for >99% pregnancy prevention). Always use water/silicone lubricant with latex.'
     };
   }
 
-  // 3. Check for Body Part / Organ Navigation
+  // 3. Check for Specific Drug Monograph Search with Robust Token & Root Matching
+  // (e.g. "what is sildenafil 50 mg", "sildenafil", "viagra", "dolo 650", "paracetamol", "amlodipine", "salbutamol")
+  for (const mono of COMPREHENSIVE_MONOGRAPHS_DATABASE) {
+    const genericWords = mono.genericName.toLowerCase().split(/[\s,()/-]+/);
+    const brandWords = mono.brandNames.flatMap(b => b.toLowerCase().split(/[\s,()/-]+/));
+    const allKeywords = [...genericWords, ...brandWords].filter(w => w.length >= 3);
+
+    const hasMatch = allKeywords.some(kw => {
+      // Direct word boundary match or substring in query
+      if (query.includes(kw)) return true;
+      // Fuzzy typo match
+      const queryWords = query.split(/[\s,()/-]+/);
+      return queryWords.some(qw => qw.length >= 4 && calculateLevenshteinDistance(qw, kw) <= 1);
+    });
+
+    if (hasMatch) {
+      const defaultStrengthDesc = mono.formulations[0]?.availableStrengths[0]?.displayLabel || '';
+      return {
+        intentType: 'DRUG_MONOGRAPH',
+        primaryMatchTitle: `${mono.genericName} (${mono.brandNames[0]})`,
+        monographRecord: mono,
+        targetStrengthValue: extractedStrengthVal,
+        targetStrengthUnit: extractedStrengthUnit,
+        directAnswerSummary: `💊 ${mono.genericName} (${mono.brandNames.slice(0, 3).join(', ')}) is a verified ${mono.drugClass}. Approved for: ${mono.approvedUses.join(' • ')}. Verified strengths: ${mono.formulations.map(f => f.availableStrengths.map(s => s.displayLabel).join(', ')).join('; ')}.`
+      };
+    }
+  }
+
+  // 4. Check for Body Part / Organ Navigation
   for (const organ of BODY_PARTS_DATABASE) {
     if (query === organ.organName.toLowerCase() || organ.aliases.some(a => query.includes(a))) {
       return {
         intentType: 'BODY_PART_ORGAN',
         primaryMatchTitle: organ.organName,
-        bodyPartRecord: organ
+        bodyPartRecord: organ,
+        directAnswerSummary: `🫀 ${organ.organName} Navigator: Key categories include ${organ.keyMedicineCategories.map(c => c.categoryName).join(', ')}.`
       };
     }
   }
 
-  // 4. Check for Specific Drug Monograph Search (e.g. "what is sildenafil 50 mg", "viagra", "dolo 650")
-  for (const mono of COMPREHENSIVE_MONOGRAPHS_DATABASE) {
-    if (
-      query.includes(mono.genericName.toLowerCase()) || 
-      mono.brandNames.some(b => query.includes(b.toLowerCase()))
-    ) {
-      return {
-        intentType: 'DRUG_MONOGRAPH',
-        primaryMatchTitle: `${mono.genericName} (${mono.brandNames[0]})`,
-        monographRecord: mono
-      };
-    }
-  }
-
-  // 5. Check for Symptom / Disease Problem Queries (e.g. "I have fever", "cold", "period cramps", "acidity")
+  // 5. Check for Symptom / Disease Problem Queries (e.g. "I have fever", "cold", "period cramps", "acidity", "allergy")
   for (const sym of CAREGUIDE_SYMPTOMS_DATABASE) {
-    if (
-      query.includes(sym.symptomName.toLowerCase()) || 
-      sym.aliases.some(a => query.includes(a) || calculateLevenshteinDistance(query, a) <= 2)
-    ) {
+    const symWords = sym.symptomName.toLowerCase().split(/[\s,()/-]+/);
+    const allAliases = [...sym.aliases, ...symWords].filter(w => w.length >= 3);
+
+    const hasSymMatch = allAliases.some(a => {
+      if (query.includes(a)) return true;
+      const queryWords = query.split(/[\s,()/-]+/);
+      return queryWords.some(qw => qw.length >= 4 && calculateLevenshteinDistance(qw, a) <= 1);
+    });
+
+    if (hasSymMatch) {
       return {
         intentType: 'SYMPTOM_GUIDANCE',
         primaryMatchTitle: sym.symptomName,
-        symptomRecord: sym
+        symptomRecord: sym,
+        directAnswerSummary: `🩺 ${sym.symptomName} Guidance: Commonly used categories include ${sym.commonlyUsedMedicineCategories.map(c => c.categoryName).join(', ')}. First-line options include ${sym.evidenceBasedSelfCareMeasures.slice(0, 2).join('; ')}.`
       };
     }
   }
@@ -1111,6 +1297,8 @@ export function parseNaturalCareGuideQuery(rawQuery: string): CareGuideIntentRes
   return {
     intentType: 'SYMPTOM_GUIDANCE',
     primaryMatchTitle: CAREGUIDE_SYMPTOMS_DATABASE[0].symptomName,
-    symptomRecord: CAREGUIDE_SYMPTOMS_DATABASE[0]
+    symptomRecord: CAREGUIDE_SYMPTOMS_DATABASE[0],
+    directAnswerSummary: `Showing clinical problem guidance for ${CAREGUIDE_SYMPTOMS_DATABASE[0].symptomName}.`
   };
 }
+
