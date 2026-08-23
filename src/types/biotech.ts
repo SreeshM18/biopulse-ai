@@ -668,6 +668,104 @@ export interface PoisoningAntidoteRecord {
   poisonControlCode: string;
 }
 
+/* =========================================================================
+   NOVA MEDGUARD AI: MULTI-DIMENSIONAL MEDICATION SAFETY TYPES
+   ========================================================================= */
+
+export type MedGuardRiskLevel = 'LOW' | 'CAUTION' | 'HIGH' | 'CRITICAL';
+
+export interface MedGuardDrugItem {
+  id: string;
+  rawInput: string;
+  genericName: string;
+  brandName?: string;
+  activeIngredient: string;
+  drugClass: string;
+  strengthValue: number;
+  strengthUnit: string; // 'mg' | 'mcg' | 'g' | 'mg/mL' | 'units' | 'mL'
+  dosageForm: PharmaDosageForm;
+  route: PharmaAdministrationRoute;
+  frequency: string; // 'QD (Daily)' | 'BID (Twice Daily)' | 'TID' | 'QID' | 'PRN (As Needed)' | 'Continuous IV'
+  isHighAlert: boolean;
+  legalStatus: PharmaLegalStatus;
+  originalDrugRecord?: MasterDrugRecord;
+}
+
+export interface MedGuardPatientContext {
+  patientId: string;
+  patientName: string;
+  age: number;
+  gender: 'Male' | 'Female' | 'Other';
+  weightKg: number;
+  isPregnant: boolean;
+  pregnancyTrimester?: '1st Trimester' | '2nd Trimester' | '3rd Trimester';
+  isLactating: boolean;
+  knownAllergies: string[];
+  diagnosedDiseases: string[];
+  egfr: number; // mL/min/1.73m2
+  serumCreatinine: number; // mg/dL
+  serumPotassium: number; // mEq/L
+  serumSodium: number; // mEq/L
+  bloodGlucose: number; // mg/dL
+  hba1c: number; // %
+  inr: number;
+  astAlt: number; // U/L
+  platelets: number; // x10^3/mcL
+  systolicBp: number;
+  diastolicBp: number;
+  consumesAlcohol: boolean;
+  alcoholIntakeFrequency?: 'Daily' | 'Moderate (1-2 drinks/wk)' | 'Heavy / Binge' | 'None';
+  consumesGrapefruit: boolean;
+  isSmoker: boolean;
+}
+
+export interface MedGuardFinding {
+  id: string;
+  category: 
+    | 'DRUG_DRUG' 
+    | 'DUPLICATE_INGREDIENT' 
+    | 'DRUG_DISEASE' 
+    | 'DRUG_ALLERGY' 
+    | 'DRUG_ALCOHOL' 
+    | 'DRUG_FOOD' 
+    | 'DRUG_LAB_ELECTROLYTE' 
+    | 'DRUG_ORGAN_RENAL' 
+    | 'DRUG_ORGAN_HEPATIC' 
+    | 'DRUG_CARDIAC_BP' 
+    | 'DRUG_PREGNANCY_LACTATION' 
+    | 'DRUG_PEDIATRIC_GERIATRIC' 
+    | 'TOXICITY_OVERDOSE_RISK';
+  severity: MedGuardRiskLevel;
+  title: string;
+  involvedItems: string[];
+  whatMayHappen: string;
+  pharmacologicalMechanism: string;
+  whoIsAtGreaterRisk: string;
+  symptomsToWatchFor: string[];
+  recommendedClinicalAction: string;
+  evidenceSources: string[];
+}
+
+export interface MedGuardAnalysisReport {
+  timestamp: string;
+  overallRiskScore: number; // 0 - 100
+  overallRiskLevel: MedGuardRiskLevel;
+  riskSummaryStatement: string;
+  drugsAnalyzed: MedGuardDrugItem[];
+  patientContext: MedGuardPatientContext;
+  duplicateIngredientAlerts: { ingredient: string; drugNames: string[]; cumulativeDose: string; maxDailySafeDose: string; warning: string }[];
+  allergyAlerts: MedGuardFinding[];
+  drugDrugInteractions: MedGuardFinding[];
+  diseaseInteractions: MedGuardFinding[];
+  labElectrolyteInteractions: MedGuardFinding[];
+  organSafetyAlerts: MedGuardFinding[];
+  alcoholFoodAlerts: MedGuardFinding[];
+  specialPopulationAlerts: MedGuardFinding[];
+  toxcheckAlerts: MedGuardFinding[];
+  allFindings: MedGuardFinding[];
+  doctorVerificationRequired: boolean;
+}
+
 export interface BatchVerificationReport {
   barcodeScanned: string;
   ndcOrBatch: string;

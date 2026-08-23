@@ -63,6 +63,7 @@ import {
 } from '../data/novaPharmaUniverseData';
 
 import { NovaMedSearch } from './NovaMedSearch';
+import { NovaMedGuard } from './NovaMedGuard';
 
 interface NovaPharmaUniverseProps {
   patient?: PatientProfile;
@@ -1457,111 +1458,13 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
       )}
 
       {/* =========================================================================
-          MODULE 11: MULTIDIMENSIONAL INTERACTION MATRIX (NOVA INTERACT)
+          MODULE 11: MULTIDIMENSIONAL INTERACTION MATRIX (NOVA MEDGUARD AI)
           ========================================================================= */}
       {activePharmaTab === 'interact' && (
-        <div className="space-y-6">
-          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-6">
-            <div>
-              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-500/40">
-                NOVA INTERACT ENGINE
-              </span>
-              <h3 className="text-lg font-black text-white mt-1">
-                Multidimensional Drug, Food, Alcohol, Disease & Lab Interactions
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-300 uppercase">Primary Medication</label>
-                <select
-                  value={interactDrugA.id}
-                  onChange={(e) => {
-                    const found = MASTER_DRUG_DATABASE.find(d => d.id === e.target.value);
-                    if (found) setInteractDrugA(found);
-                  }}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-400"
-                >
-                  {MASTER_DRUG_DATABASE.map((d) => (
-                    <option key={d.id} value={d.id}>{d.genericName} ({d.drugClass})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-300 uppercase">Target Substance / Food / Condition</label>
-                <select
-                  value={interactTarget}
-                  onChange={(e) => setInteractTarget(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-400"
-                >
-                  {interactDrugA.interactions.map((item, idx) => (
-                    <option key={idx} value={item.targetName}>[{item.targetType}] {item.targetName}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-3 pt-2">
-              {interactDrugA.interactions.map((interaction, idx) => {
-                const isSelected = interaction.targetName === interactTarget;
-                const sev = interaction.severity;
-
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => setInteractTarget(interaction.targetName)}
-                    className={`p-5 rounded-2xl border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#0f1733] border-cyan-400 shadow-glow-cyan'
-                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-slate-800/80">
-                      <div className="flex items-center space-x-2.5">
-                        <span className={`px-2.5 py-1 rounded-xl text-xs font-mono font-black ${
-                          sev === 'CONTRAINDICATED_CRITICAL' ? 'bg-rose-950 text-rose-300 border border-rose-500' :
-                          sev === 'MAJOR' ? 'bg-amber-950 text-amber-300 border border-amber-500' :
-                          sev === 'MODERATE' ? 'bg-yellow-950 text-yellow-300 border border-yellow-500' :
-                          'bg-emerald-950 text-emerald-300 border border-emerald-500'
-                        }`}>
-                          {sev === 'CONTRAINDICATED_CRITICAL' ? '🔴 CONTRAINDICATED / CRITICAL' :
-                           sev === 'MAJOR' ? '🟠 MAJOR HAZARD' :
-                           sev === 'MODERATE' ? '🟡 MODERATE' : '🟢 MINOR'}
-                        </span>
-                        <h4 className="text-sm font-black text-white">
-                          {interactDrugA.genericName} ⇄ {interaction.targetName}
-                        </h4>
-                      </div>
-
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-slate-950 text-slate-400 border border-slate-800">
-                        {interaction.targetType} Interaction
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 text-xs">
-                      <div>
-                        <span className="text-[11px] font-bold text-slate-400 block mb-1">Biological Mechanism:</span>
-                        <p className="text-slate-300 leading-relaxed font-medium">
-                          {interaction.mechanism}
-                        </p>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/90 space-y-1">
-                        <span className="text-[11px] font-bold text-cyan-300 block">Mandatory Clinical Action:</span>
-                        <p className="text-slate-200 leading-relaxed">
-                          {interaction.clinicalAction}
-                        </p>
-                      </div>
-                    </div>
-
-                  </div>
-                );
-              })}
-            </div>
-
-          </div>
-        </div>
+        <NovaMedGuard 
+          patient={patient}
+          setActiveTab={setActiveTab}
+        />
       )}
 
       {/* =========================================================================
