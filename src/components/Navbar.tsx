@@ -25,15 +25,19 @@ import {
   Globe,
   Flame,
   Brain,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  LogOut
 } from 'lucide-react';
 import { TabType, UserPortalRole } from '../types/biotech';
+import { AuthenticatedUser } from './AuthPortal';
 
 interface NavbarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   activeRole: UserPortalRole;
   setActiveRole: (role: UserPortalRole) => void;
+  currentUser?: AuthenticatedUser | null;
+  onLogout?: () => void;
   onOpenNotes: () => void;
   onOpenRegister: () => void;
   onOpenSettings?: () => void;
@@ -44,6 +48,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab, 
   activeRole,
   setActiveRole,
+  currentUser,
+  onLogout,
   onOpenNotes,
   onOpenRegister,
   onOpenSettings
@@ -173,8 +179,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Action Buttons */}
+          {/* User Profile Badge & Action Buttons */}
           <div className="flex items-center space-x-1.5">
+            
+            {/* Authenticated User Badge */}
+            {currentUser && (
+              <div className="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-xl bg-slate-900 border border-cyan-500/30 text-xs">
+                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="font-bold text-white max-w-[110px] truncate">{currentUser.name}</span>
+                <span className="text-[9px] font-mono text-cyan-300 px-1 py-0.2 rounded bg-cyan-950">
+                  {currentUser.role.toUpperCase()}
+                </span>
+              </div>
+            )}
+
             <button
               onClick={onOpenRegister}
               className="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-glow-cyan transition-all"
@@ -198,6 +216,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title="Settings & Mobile Phone Connect QR"
               >
                 <SettingsIcon className="w-4 h-4" />
+              </button>
+            )}
+
+            {/* Logout Button */}
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="p-1.5 sm:p-2 rounded-xl text-xs font-semibold bg-slate-850 hover:bg-rose-950 text-slate-400 hover:text-rose-300 border border-slate-750 hover:border-rose-500/50 transition-all"
+                title="Logout & Return to Welcome Portal"
+              >
+                <LogOut className="w-4 h-4" />
               </button>
             )}
           </div>

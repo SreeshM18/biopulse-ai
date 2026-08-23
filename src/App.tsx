@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { WelcomeSplashScreen } from './components/WelcomeSplashScreen';
+import { AuthPortal, AuthenticatedUser } from './components/AuthPortal';
 import { Navbar } from './components/Navbar';
 import { JudgePitchBanner } from './components/JudgePitchBanner';
 import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
@@ -37,9 +39,15 @@ import { PatientProfile, ProteinStructure, TabType, UserPortalRole, Prescription
 import { MedicalSpecialty } from './data/specialistDirectory';
 import { ShieldCheck, Activity, Radio, Layers, User, Stethoscope, Building2, ShieldAlert, Users, BedDouble, Clock, Calendar, Globe, Flame, Brain, Heart, Dna } from 'lucide-react';
 
+type AppFlowState = 'welcome' | 'auth' | 'main';
+
 export const App: React.FC = () => {
+  // Application Top-Level Lifecycle: 5s Welcome -> Manual Auth -> Main Clinical Dashboard
+  const [appState, setAppState] = useState<AppFlowState>('welcome');
+  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
+
   const [activeTab, setActiveTab] = useState<TabType>('command_center');
-  const [activeRole, setActiveRole] = useState<UserPortalRole>('patient');
+  const [activeRole, setActiveRole] = useState<UserPortalRole>('doctor');
   const [patients, setPatients] = useState<PatientProfile[]>(PATIENT_DATABASE);
   const [selectedPatient, setSelectedPatient] = useState<PatientProfile>(PATIENT_DATABASE[0]);
   const [selectedStructure, setSelectedStructure] = useState<ProteinStructure>(PROTEIN_STRUCTURES[0]);
@@ -48,6 +56,36 @@ export const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [deviceMode, setDeviceMode] = useState<ViewportDeviceMode>('responsive');
   const [autoDetectDevice, setAutoDetectDevice] = useState<boolean>(true);
+
+  // When 5-second welcome screen finishes
+  const handleWelcomeComplete = () => {
+    setAppState('auth');
+  };
+
+  // When user successfully verifies OTP in Auth Portal
+  const handleAuthenticated = (user: AuthenticatedUser) => {
+    setCurrentUser(user);
+    setActiveRole(user.role);
+    
+    // Automatically direct to role-specific main view
+    if (user.role === 'emergency') {
+      setActiveTab('nova_rescue');
+    } else if (user.role === 'doctor') {
+      setActiveTab('command_center');
+    } else if (user.role === 'hospital') {
+      setActiveTab('hospital_units');
+    } else {
+      setActiveTab('patient_monitor');
+    }
+
+    setAppState('main');
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setAppState('welcome');
+  };
 
   const handleAddPatient = (newPatient: PatientProfile) => {
     setPatients(prev => [newPatient, ...prev]);
@@ -77,15 +115,28 @@ export const App: React.FC = () => {
     setActiveTab('whole_body');
   };
 
+  // 1. STEP A: 5-Second Visible Welcome Splash Screen
+  if (appState === 'welcome') {
+    return <WelcomeSplashScreen onComplete={handleWelcomeComplete} />;
+  }
+
+  // 2. STEP B: Complete Manual Authentication Portal (Sign In, Sign Up, Forgot Pass, 6-Digit OTP)
+  if (appState === 'auth') {
+    return <AuthPortal onAuthenticated={handleAuthenticated} />;
+  }
+
+  // 3. STEP C: Main BioPulse AI / NOVA Platform (After Successful OTP Verification)
   return (
     <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 pb-16 md:pb-0">
       
-      {/* 1. Header Navigation with 4 Access Portals Switcher */}
+      {/* 1. Header Navigation with 4 Access Portals Switcher & Logged In User */}
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         activeRole={activeRole}
         setActiveRole={setActiveRole}
+        currentUser={currentUser}
+        onLogout={handleLogout}
         onOpenNotes={() => setIsNotesOpen(true)} 
         onOpenRegister={() => setIsRegisterOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
