@@ -12,6 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { PatientProfile, RiskLevel } from '../types/biotech';
+import { clinicalDb } from '../services/clinicalDatabaseService';
 
 interface PatientRegistrationModalProps {
   isOpen: boolean;
@@ -153,6 +154,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
       ]
     };
 
+    clinicalDb.createPatient(newPatient);
     onAddPatient(newPatient);
     onClose();
   };

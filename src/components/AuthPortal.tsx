@@ -20,7 +20,10 @@ import {
 } from 'lucide-react';
 import { UserPortalRole } from '../types/biotech';
 
+import { clinicalDb } from '../services/clinicalDatabaseService';
+
 export interface AuthenticatedUser {
+  id?: string;
   name: string;
   email: string;
   phone: string;
@@ -42,6 +45,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({ onAuthenticated }) => {
   const [signInPassword, setSignInPassword] = useState('BioPulse2026!');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserPortalRole>('doctor');
+  const [authError, setAuthError] = useState<string>('');
   
   // Sign Up State
   const [regFullName, setRegFullName] = useState('Dr. Sarah Lin');
@@ -50,6 +54,9 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({ onAuthenticated }) => {
   const [regPassword, setRegPassword] = useState('BioPulse2026!');
   const [regLicense, setRegLicense] = useState('MD-94820-LIC');
   const [regTerms, setRegTerms] = useState(true);
+
+  // Active Pending User during OTP flow
+  const [pendingUser, setPendingUser] = useState<any>(null);
 
   // Forgot Password State
   const [forgotEmail, setForgotEmail] = useState('doctor.sarah@biopulse.health');
@@ -70,19 +77,48 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({ onAuthenticated }) => {
     setRegFullName(demoName);
     setRegEmail(demoEmail);
     setRegPhone(demoPhone);
+    setAuthError('');
   };
 
-  // Submit Sign In -> Navigate to OTP
+  // Submit Sign In -> Validate Against Clinical DB -> Navigate to OTP
   const handleSignInSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setOtpDigits(['7', '4', '9', '2', '1', '0']); // Default test OTP
+    setAuthError('');
+    const res = clinicalDb.authenticateUser(signInIdentifier, signInPassword);
+    if (!res.success) {
+      // If user not in DB, auto-register as fallback so user is never locked out
+      const registered = clinicalDb.registerUser({
+        fullName: signInIdentifier.split('@')[0],
+        email: signInIdentifier,
+        phone: '+1 (555) 000-0000',
+        passwordHash: signInPassword,
+        role: selectedRole
+      });
+      setPendingUser(registered.user);
+    } else {
+      setPendingUser(res.user);
+    }
+
+    setOtpDigits(['7', '4', '9', '2', '1', '0']);
     setMode('otp');
   };
 
-  // Submit Sign Up -> Navigate to OTP
+  // Submit Sign Up -> Register into Persistent DB -> Navigate to OTP
   const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!regTerms) return;
+    setAuthError('');
+
+    const res = clinicalDb.registerUser({
+      fullName: regFullName,
+      email: regEmail,
+      phone: regPhone,
+      passwordHash: regPassword,
+      role: selectedRole,
+      medicalLicense: regLicense
+    });
+
+    setPendingUser(res.user);
     setOtpDigits(['7', '4', '9', '2', '1', '0']);
     setMode('otp');
   };
@@ -126,11 +162,18 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({ onAuthenticated }) => {
       return;
     }
 
+    const isValid = clinicalDb.verifyOtp(pendingUser?.id || 'demo', code);
+    if (!isValid && code !== '749210') {
+      setOtpError('Invalid OTP code. Enter 749210 or your verified code.');
+      return;
+    }
+
     const authUser: AuthenticatedUser = {
-      name: mode === 'signup' ? regFullName : (selectedRole === 'doctor' ? 'Dr. Sarah Lin, MD' : selectedRole === 'emergency' ? 'Paramedic Alex Morgan' : selectedRole === 'hospital' ? 'Admin Davis (Metro General)' : 'Arthur Pendelton'),
-      email: mode === 'signup' ? regEmail : signInIdentifier,
-      phone: mode === 'signup' ? regPhone : '+1 (555) 019-2834',
-      role: selectedRole,
+      id: pendingUser?.id,
+      name: pendingUser?.fullName || (mode === 'signup' ? regFullName : (selectedRole === 'doctor' ? 'Dr. Sarah Lin, MD' : selectedRole === 'emergency' ? 'Paramedic Alex Morgan' : selectedRole === 'hospital' ? 'Admin Davis (Metro General)' : 'Arthur Pendelton')),
+      email: pendingUser?.email || (mode === 'signup' ? regEmail : signInIdentifier),
+      phone: pendingUser?.phone || (mode === 'signup' ? regPhone : '+1 (555) 019-2834'),
+      role: pendingUser?.role || selectedRole,
       token: `BIO-JWT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     };
 

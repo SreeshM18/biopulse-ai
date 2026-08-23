@@ -30,6 +30,8 @@ import { PrescriptionVault } from './components/PrescriptionVault';
 import { AlertsManager } from './components/AlertsManager';
 import { ClinicalNotesModal } from './components/ClinicalNotesModal';
 import { PatientRegistrationModal } from './components/PatientRegistrationModal';
+import { DatabaseAdminModal } from './components/DatabaseAdminModal';
+import { clinicalDb } from './services/clinicalDatabaseService';
 
 import { StructureViewer3D } from './components/StructureViewer3D';
 import { VariantAnalyzer } from './components/VariantAnalyzer';
@@ -41,7 +43,7 @@ import { PATIENT_DATABASE } from './data/patientDatabase';
 import { PROTEIN_STRUCTURES } from './data/proteinStructures';
 import { PatientProfile, ProteinStructure, TabType, UserPortalRole, PrescriptionRecord } from './types/biotech';
 import { MedicalSpecialty } from './data/specialistDirectory';
-import { ShieldCheck, Activity, Radio, Layers, User, Stethoscope, Building2, ShieldAlert, Users, BedDouble, Clock, Calendar, Globe, Flame, Brain, Heart, Dna } from 'lucide-react';
+import { ShieldCheck, Activity, Radio, Layers, User, Stethoscope, Building2, ShieldAlert, Users, BedDouble, Clock, Calendar, Globe, Flame, Brain, Heart, Dna, Database } from 'lucide-react';
 
 type AppFlowState = 'welcome' | 'auth' | 'main';
 
@@ -52,12 +54,13 @@ export const App: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<TabType>('command_center');
   const [activeRole, setActiveRole] = useState<UserPortalRole>('doctor');
-  const [patients, setPatients] = useState<PatientProfile[]>(PATIENT_DATABASE);
-  const [selectedPatient, setSelectedPatient] = useState<PatientProfile>(PATIENT_DATABASE[0]);
+  const [patients, setPatients] = useState<PatientProfile[]>(() => clinicalDb.getPatients());
+  const [selectedPatient, setSelectedPatient] = useState<PatientProfile>(() => clinicalDb.getPatients()[0] || PATIENT_DATABASE[0]);
   const [selectedStructure, setSelectedStructure] = useState<ProteinStructure>(PROTEIN_STRUCTURES[0]);
   const [isNotesOpen, setIsNotesOpen] = useState<boolean>(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isDatabaseOpen, setIsDatabaseOpen] = useState<boolean>(false);
   const [deviceMode, setDeviceMode] = useState<ViewportDeviceMode>('responsive');
   const [autoDetectDevice, setAutoDetectDevice] = useState<boolean>(true);
 
@@ -144,6 +147,7 @@ export const App: React.FC = () => {
         onOpenNotes={() => setIsNotesOpen(true)} 
         onOpenRegister={() => setIsRegisterOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenDatabase={() => setIsDatabaseOpen(true)}
       />
 
       {/* 2. Top Judge Pitch Showcase Banner */}
@@ -375,6 +379,20 @@ export const App: React.FC = () => {
         setActiveRole={setActiveRole}
         autoDetectDevice={autoDetectDevice}
         setAutoDetectDevice={setAutoDetectDevice}
+      />
+
+      {/* 8. Master Persistent Clinical Database Studio Modal */}
+      <DatabaseAdminModal
+        isOpen={isDatabaseOpen}
+        onClose={() => setIsDatabaseOpen(false)}
+        onRefreshData={() => {
+          const fresh = clinicalDb.getPatients();
+          setPatients(fresh);
+          if (selectedPatient) {
+            const updated = fresh.find(p => p.id === selectedPatient.id);
+            if (updated) setSelectedPatient(updated);
+          }
+        }}
       />
 
       {/* 8. Footer (Hidden on mobile to save vertical space) */}

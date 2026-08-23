@@ -27,6 +27,7 @@ import {
   Globe,
   Flame,
   Brain,
+  Database,
   Settings as SettingsIcon,
   LogOut
 } from 'lucide-react';
@@ -43,6 +44,7 @@ interface NavbarProps {
   onOpenNotes: () => void;
   onOpenRegister: () => void;
   onOpenSettings?: () => void;
+  onOpenDatabase?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
@@ -54,7 +56,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   onOpenNotes,
   onOpenRegister,
-  onOpenSettings
+  onOpenSettings,
+  onOpenDatabase
 }) => {
   const patientMonitoringTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'command_center', label: 'Command', icon: <Activity className="w-4 h-4 text-cyan-400" /> },
@@ -212,6 +215,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <FileCheck2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
               <span className="text-[11px] sm:text-xs">SOAP</span>
             </button>
+
+            {onOpenDatabase && (
+              <button
+                onClick={onOpenDatabase}
+                className="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 shadow-glow-cyan transition-all"
+                title="Open Master Clinical Database Studio (Users, Patients, Billing, Appointments)"
+              >
+                <Database className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Database</span>
+              </button>
+            )}
 
             {onOpenSettings && (
               <button

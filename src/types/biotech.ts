@@ -453,6 +453,229 @@ export type VisualSafetyRiskTier =
   | 'SPECIALIST_HOSPITAL' // 🟣 Specialist / Hospital Only
   | 'ILLICIT_TOXICOLOGY'; // ⚫ Illicit / Toxicology Record
 
+/* =========================================================================
+   12 NOVA PHARMA LEGAL & SAFETY STATUS TIERS
+   ========================================================================= */
+
+export type NovaSubstanceLegalStatus =
+  | 'OTC'                  // 🟢 OTC: Non-prescription medicine where permitted
+  | 'Prescription'         // 🔵 Prescription: Requires authorized prescription
+  | 'Pharmacist-only'      // 🟡 Pharmacist/Specialist: Additional professional supervision
+  | 'High-alert'           // 🟠 High Alert: Legal but serious harm possible if misused
+  | 'Controlled'           // 🔴 Controlled: Legally restricted because of abuse/dependence risk
+  | 'Hospital-only'        // 🟣 Hospital Only: Used primarily in clinical/hospital settings
+  | 'Biologic'             // 🧬 Biologic: Vaccines, antibodies, proteins, cell/gene therapies
+  | 'Investigational'      // 🧪 Investigational: Clinical-trial medicine
+  | 'Illicit'              // ⚫ Illicit: Substance not legally supplied for ordinary medical use
+  | 'Banned / Withdrawn'   // 🚫 Banned/Withdrawn: Removed/restricted by regulators
+  | 'Counterfeit / Falsified' // ⚠️ Counterfeit: Fake/adulterated pharmaceutical
+  | 'Toxic Chemical';      // ☠️ Toxic Chemical: Poison/toxicology/forensic substance
+
+/* =========================================================================
+   PHARMACEUTICAL DOSAGE SUBTYPES & RELEASE KINETICS
+   ========================================================================= */
+
+export type TabletSubtype =
+  | 'Conventional Compressed'
+  | 'Uncoated'
+  | 'Film Coated'
+  | 'Sugar Coated'
+  | 'Enteric Coated'
+  | 'Chewable'
+  | 'Dispersible'
+  | 'Soluble'
+  | 'Effervescent'
+  | 'Orodispersible (ODT)'
+  | 'Sublingual'
+  | 'Buccal'
+  | 'Scored'
+  | 'Bilayer'
+  | 'Multilayer'
+  | 'Matrix Tablet'
+  | 'Tablet-in-Tablet'
+  | 'Mini-Tablet';
+
+export type CapsuleSubtype =
+  | 'Hard Gelatin Capsule'
+  | 'Softgel'
+  | 'Vegetarian / HPMC Capsule'
+  | 'Immediate Release Capsule'
+  | 'Delayed Release Capsule'
+  | 'Enteric-Coated Pellets in Capsule'
+  | 'Extended Release Capsule'
+  | 'Sprinkle Capsule'
+  | 'Liquid-Filled Capsule';
+
+export type ReleaseKineticsType =
+  | 'Immediate Release (IR)'
+  | 'Delayed Release (DR)'
+  | 'Extended Release (ER/XR)'
+  | 'Sustained Release (SR)'
+  | 'Controlled Release (CR)'
+  | 'Modified Release (MR)'
+  | 'Prolonged Release (PR)';
+
+export type UniversalStrengthUnit =
+  | 'ng'
+  | 'mcg'
+  | 'mg'
+  | 'g'
+  | 'mg/mL'
+  | 'mg/5 mL'
+  | 'mcg/mL'
+  | 'mcg/dose'
+  | 'mcg/actuation'
+  | 'mcg/hr'
+  | 'mg/24hr'
+  | 'IU'
+  | 'units'
+  | 'units/mL'
+  | 'mEq'
+  | 'mmol'
+  | '%'
+  | 'mg/cm²'
+  | 'mg/100 mL'
+  | 'dose/actuation';
+
+export type SpecificInjectionRoute =
+  | 'Intravenous (IV)'
+  | 'Intramuscular (IM)'
+  | 'Subcutaneous (SC)'
+  | 'Intradermal (ID)'
+  | 'Intra-articular'
+  | 'Intrathecal'
+  | 'Epidural'
+  | 'Intraosseous'
+  | 'Intravitreal'
+  | 'Intralesional';
+
+export type VaccineTechnologyType =
+  | 'Live Attenuated'
+  | 'Inactivated'
+  | 'Subunit'
+  | 'Recombinant Protein'
+  | 'Polysaccharide'
+  | 'Conjugate'
+  | 'Viral Vector'
+  | 'mRNA'
+  | 'Toxoid';
+
+export interface CountryLegalClassification {
+  countryCode: string; // 'US' | 'IN' | 'UK' | 'EU' | 'CA' | 'AU'
+  countryName: string;
+  status: NovaSubstanceLegalStatus;
+  scheduleDesignation?: string; // e.g. "Schedule II (US)", "Schedule H (India)", "Class B (UK)"
+  prescriptionRequired: boolean;
+}
+
+export interface UniversalSubstanceRecord {
+  id: string;
+  genericName: string;
+  brandNames: string[];
+  aliases: string[];
+  activeIngredients: string[];
+  casNumber?: string;
+  atcCode?: string;
+  therapeuticClass: string;
+  pharmacologicClass: string;
+  primaryLegalStatus: NovaSubstanceLegalStatus;
+  controlledSchedule?: string;
+  isHighAlert: boolean;
+  isHospitalOnly: boolean;
+  countryLegalClassifications: CountryLegalClassification[];
+  dosageForm: PharmaDosageForm;
+  dosageSubtype?: TabletSubtype | CapsuleSubtype | string;
+  releaseType: ReleaseKineticsType;
+  primaryRoute: PharmaAdministrationRoute;
+  allAvailableRoutes: PharmaAdministrationRoute[];
+  strengthValue: number | string;
+  strengthUnit: UniversalStrengthUnit;
+  concentrationDisplay?: string; // e.g. "100 mg / 5 mL", "100 mcg / actuation"
+  deliveryRateDisplay?: string; // e.g. "25 mcg/hr transdermal"
+  approvedUses: string[];
+  medicalSpecialties: string[];
+  mechanismOfAction: string;
+  clinicalBenefits: string[];
+  clinicalLimitations: string[];
+  commonSideEffects: string[];
+  seriousAdverseEffects: string[];
+  contraindications: string[];
+  allergyInformation: string;
+  drugInteractionsSummary: string;
+  alcoholInteractionSummary: string;
+  foodInteractions: string[];
+  diseaseInteractions: string[];
+  pregnancySafetyGuidance: string;
+  breastfeedingGuidance: string;
+  pediatricGuidance: string;
+  geriatricBeersGuidance: string;
+  renalAdjustment: string;
+  hepaticAdjustment: string;
+  cardiacConsiderations: string;
+  diabetesConsiderations: string;
+  admeAbsorption: string;
+  admeDistribution: string;
+  admeMetabolism: string;
+  admeExcretion: string;
+  admeHalfLife: string;
+  primaryManufacturers: string[];
+  storageAndColdChain: string;
+  recallStatus?: string;
+  chemicalFormula?: string;
+  molecularWeight?: number;
+  toxicityClass?: string;
+  abusePotential?: 'None / Negligible' | 'Low (Schedule IV/V)' | 'Moderate (Schedule III)' | 'High (Schedule II)' | 'Extreme / Severe (Schedule I/Illicit)';
+  dependenceRisk?: string;
+  forensicRelevance?: string;
+  overdoseWarningSigns?: string[];
+  specificAntidote?: string;
+}
+
+export interface ForensicToxRecord {
+  id: string;
+  substanceName: string;
+  streetAliases: string[];
+  substanceCategory: 
+    | 'Illicit Opioid' 
+    | 'Illicit Stimulant' 
+    | 'Hallucinogen' 
+    | 'Dissociative' 
+    | 'Synthetic Cannabinoid' 
+    | 'Illicit Sedative / Depressant' 
+    | 'Novel Psychoactive Substance (NPS)' 
+    | 'Inhalant' 
+    | 'Illicit PED / Anabolic' 
+    | 'Diverted Prescription Drug' 
+    | 'Toxic Chemical / Industrial Poison' 
+    | 'Biological Toxin / Venom';
+  chemicalClass: string;
+  legalClassification: '⚫ Illicit (Schedule I / Prohibited)' | '🔴 Diverted Controlled' | '☠️ Toxic Poison';
+  medicalUseIfAny: string;
+  primaryMechanism: string;
+  toxicityProfile: string;
+  dependenceRiskScore: number; // 0 - 100
+  majorHealthEffects: string[];
+  overdoseWarningSigns: string[];
+  forensicDetectionMarkers: string[]; // e.g. "Benzoylecgonine in urine", "6-MAM"
+  reversalAntidoteProtocol: string; // e.g. "Naloxone 0.4 - 2mg IV/Intranasal repeat Q2-3min"
+  ghsHazardClass: string;
+}
+
+export interface CounterfeitIntelligenceRecord {
+  id: string;
+  suspectedBrandName: string;
+  falsifiedProductType: 'Fake Brand' | 'Wrong Active Ingredient' | 'Wrong Strength / Subpotent' | 'Undeclared Adulterant in Supplement' | 'Contaminated Batch' | 'Counterfeit Packaging' | 'Relabelled Expiry' | 'Official Regulatory Recall';
+  claimedIngredientOnBox: string;
+  actualLabDetectedContent: string;
+  reportedLotBatch: string;
+  originatingJurisdiction: string;
+  discoveryDate: string;
+  dangerLevel: 'CRITICAL_LETHAL' | 'HIGH_TOXIC' | 'SUBPOTENT_INEFFECTIVE';
+  clinicalHazardDescription: string;
+  regulatoryAgencyAlert: string; // e.g. "WHO Medical Product Alert No. 4/2024", "FDA Warning Letter"
+  visualAuthenticationTelltales: string[];
+}
+
 export type PharmaDosageForm = 
   | 'Tablets' | 'Tablet' 
   | 'Capsules' | 'Capsule' 
@@ -504,6 +727,8 @@ export type PharmaAdministrationRoute =
   | 'Epidural'
   | 'Intrathecal'
   | 'Intraosseous'
+  | 'Intravitreal'
+  | 'Intralesional'
   | 'Inhaled' 
   | 'Nasal' 
   | 'Ophthalmic' 
@@ -518,17 +743,17 @@ export type PharmaAdministrationRoute =
 
 export type PharmaLegalStatus = 
   | 'OTC' 
-  | 'Pharmacist-only'
   | 'Prescription' 
-  | 'Specialist prescription'
-  | 'Controlled prescription'
+  | 'Pharmacist-only' 
+  | 'Specialist prescription' 
+  | 'Controlled prescription' 
   | 'Hospital-only' 
-  | 'Emergency-use'
-  | 'High-alert'
+  | 'Emergency-use' 
+  | 'High-alert' 
   | 'Investigational' 
-  | 'Restricted indication'
-  | 'Vaccine'
-  | 'Biologic'
+  | 'Restricted indication' 
+  | 'Vaccine' 
+  | 'Biologic' 
   | 'Orphan medicine'
   | 'OTC (Over-The-Counter)' 
   | 'Prescription-Only (Rx)' 

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { INITIAL_APPOINTMENTS, Appointment } from '../data/appointments';
 import { PatientProfile, TabType } from '../types/biotech';
+import { clinicalDb } from '../services/clinicalDatabaseService';
 
 interface AppointmentsManagerProps {
   patient: PatientProfile;
@@ -60,6 +61,23 @@ export const AppointmentsManager: React.FC<AppointmentsManagerProps> = ({
       room: 'Consultation Suite 101',
       isTeleconsult: true
     };
+
+    clinicalDb.createAppointment({
+      id: newApt.id,
+      patientId: patient.id,
+      patientName: patient.name,
+      mrn: patient.mrn,
+      doctorId: 'user-doc-sarah',
+      doctorName,
+      department,
+      dateTime: new Date().toISOString(),
+      durationMinutes: 30,
+      appointmentType: 'Teleconsult (Video)',
+      status: 'Confirmed',
+      chiefComplaint: reason,
+      roomOrBedLocation: 'Consultation Suite 101'
+    });
+
     setAppointments(prev => [newApt, ...prev]);
     setIsBookingOpen(false);
   };
