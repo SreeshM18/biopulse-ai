@@ -14,7 +14,7 @@ export const JudgePitchBanner: React.FC<JudgePitchBannerProps> = ({
   onSelectPatient
 }) => {
   return (
-    <div className="bg-gradient-to-r from-[#070b16] via-[#0b1428] to-[#070b16] border-b border-cyan-500/20 py-1.5 sm:py-2 px-3 sm:px-6 print:hidden">
+    <div className="hidden md:block bg-gradient-to-r from-[#070b16] via-[#0b1428] to-[#070b16] border-b border-cyan-500/20 py-2 px-4 sm:px-6 print:hidden">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
         
         {/* Left: Hackathon Pitch Tag */}

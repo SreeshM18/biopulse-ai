@@ -54,80 +54,80 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
       
       {/* Top Hospital Telemetry Hero Banner */}
-      <div className="relative rounded-3xl overflow-hidden glass-card border border-cyan-500/30 p-6 sm:p-8 shadow-2xl bg-gradient-to-br from-[#090e1d] via-[#0d1428] to-[#060913]">
+      <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden glass-card border border-cyan-500/30 p-3.5 sm:p-6 md:p-8 shadow-2xl bg-gradient-to-br from-[#090e1d] via-[#0d1428] to-[#060913]">
         <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <span className="flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-glow-cyan">
-                <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
-                <span>Clinical Decision Support Engine</span>
+        <div className="relative z-10 space-y-3.5 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
+            <div className="flex items-center space-x-2">
+              <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-glow-cyan">
+                <Radio className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse text-cyan-400" />
+                <span>Clinical Decision Support</span>
               </span>
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                NEWS2 & XAI Active
+              <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                NEWS2 & XAI
               </span>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="grid grid-cols-3 sm:flex items-center gap-1.5 sm:space-x-2">
               {onOpenRegister && (
                 <button
                   onClick={onOpenRegister}
-                  className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-glow-cyan transition-all"
+                  className="flex items-center justify-center space-x-1 px-2 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-glow-cyan transition-all"
                 >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>+ Admit Patient</span>
+                  <UserPlus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span className="truncate">+ Admit</span>
                 </button>
               )}
 
               <button
                 onClick={() => setActiveTab('emergency_qr')}
-                className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/30 transition-all"
+                className="flex items-center justify-center space-x-1 px-2 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/30 transition-all"
               >
-                <QrCode className="w-3.5 h-3.5 text-purple-400" />
-                <span>Emergency QR</span>
+                <QrCode className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400" />
+                <span className="truncate">Emergency QR</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('alerts')}
-                className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all animate-pulse"
+                className="flex items-center justify-center space-x-1 px-2 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all animate-pulse"
               >
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                <span>3 Active Alerts</span>
+                <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-rose-400" />
+                <span className="truncate">3 Alerts</span>
               </button>
             </div>
           </div>
 
           {/* Core Title */}
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+          <div className="space-y-1 sm:space-y-2">
+            <h1 className="text-base sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
               NOVA BioPulse AI — Patient Deterioration & Emergency Health Platform
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-4xl leading-relaxed">
-              Targeted clinical intelligence solving the single most critical hospital challenge: Continuous physiological vitals evaluation, Explainable AI (XAI) deterioration risk detection, and instant 2-second QR-based emergency access.
+            <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 max-w-4xl leading-relaxed line-clamp-2 sm:line-clamp-none">
+              Targeted clinical intelligence solving continuous physiological vitals evaluation, Explainable AI (XAI) deterioration risk detection, and instant 2-second QR-based emergency access.
             </p>
           </div>
 
           {/* 3 Core Value Pillars Callout */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-4 pt-1 sm:pt-2">
             
             <div 
               onClick={() => setActiveTab('patient_monitor')}
-              className="p-4 rounded-2xl bg-slate-900/80 border border-cyan-500/30 hover:border-cyan-400 cursor-pointer transition-all group"
+              className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-900/80 border border-cyan-500/30 hover:border-cyan-400 cursor-pointer transition-all group"
             >
-              <div className="flex items-center space-x-2 text-cyan-400 font-bold text-xs mb-1">
-                <Heart className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center space-x-1.5 text-cyan-400 font-bold text-[11px] sm:text-xs mb-0.5">
+                <Heart className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
                 <span>1. Patient Monitoring</span>
               </div>
-              <div className="text-sm font-extrabold text-white">
+              <div className="text-xs sm:text-sm font-extrabold text-white">
                 Multi-Bed Live Telemetry
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Continuous HR, SpO2, Temp, BP, Resp Rate with NEWS2 early warning scoring.
+              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1">
+                Continuous HR, SpO2, Temp, BP, Resp Rate with NEWS2 scoring.
               </p>
             </div>
 
