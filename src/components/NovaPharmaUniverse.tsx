@@ -33,7 +33,13 @@ import {
   Building2,
   Lock,
   Snowflake,
-  RotateCcw
+  RotateCcw,
+  Syringe,
+  Skull,
+  Zap,
+  Award,
+  Biohazard,
+  ShieldX
 } from 'lucide-react';
 import { 
   MasterDrugRecord, 
@@ -43,7 +49,10 @@ import {
   ColdChainLog,
   PatientProfile,
   TabType,
-  InteractionSeverityTier
+  SubstanceUniverseCategory,
+  VisualSafetyRiskTier,
+  PharmaDosageForm,
+  PharmaAdministrationRoute
 } from '../types/biotech';
 import { 
   MASTER_DRUG_DATABASE, 
@@ -60,10 +69,16 @@ interface NovaPharmaUniverseProps {
 
 type PharmaViewTab = 
   | 'az_browser' 
+  | 'injections_universe'
+  | 'reproductive_pharma'
+  | 'sedatives_hypnotics'
+  | 'forensic_substances'
+  | 'peds_wada'
+  | 'poison_chemicals'
+  | 'biologics_gene'
   | 'molecule_3d' 
   | 'interact' 
   | 'high_alert_safe' 
-  | 'poison_antidote' 
   | 'verify_counterfeit' 
   | 'adr_vigilance' 
   | 'stock_coldchain';
@@ -74,10 +89,15 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
 }) => {
   const [activePharmaTab, setActivePharmaTab] = useState<PharmaViewTab>('az_browser');
 
-  // A-Z Browser State
+  // Filter States
   const [selectedLetter, setSelectedLetter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedSubstanceCategory, setSelectedSubstanceCategory] = useState<string>('All');
+  const [selectedRiskTier, setSelectedRiskTier] = useState<string>('All');
+  const [selectedDosageForm, setSelectedDosageForm] = useState<string>('All');
+  const [selectedRoute, setSelectedRoute] = useState<string>('All');
+
+  // Selected Records
   const [selectedDrug, setSelectedDrug] = useState<MasterDrugRecord>(MASTER_DRUG_DATABASE[0]);
   const [expandedDrugId, setExpandedDrugId] = useState<string | null>(MASTER_DRUG_DATABASE[0].id);
 
@@ -93,13 +113,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
   const [interactTarget, setInteractTarget] = useState<string>('Grapefruit Juice (>1L/day)');
 
   // NOVA SAFE 5-Rights Bedside State
-  const [fiveRights, setFiveRights] = useState({
-    patient: true,
-    drug: true,
-    dose: true,
-    route: true,
-    time: true
-  });
   const [scannedBarcode, setScannedBarcode] = useState<string>('010030069001021721008941B17271130');
   const [isWristbandMatched, setIsWristbandMatched] = useState<boolean>(true);
 
@@ -115,20 +128,54 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
   const [adrReportsList, setAdrReportsList] = useState<ADRSubmissionRecord[]>(PHARMACOVIGILANCE_REPORTS);
   const [adrSubmittedSuccess, setAdrSubmittedSuccess] = useState<boolean>(false);
 
-  // Filtered Drugs
+  // All 20 Legal / Safety Substance Universe Categories
+  const substanceUniverseCategories: SubstanceUniverseCategory[] = [
+    'OTC', 'Prescription', 'Specialist prescription', 'Hospital-only',
+    'Emergency medicines', 'High-alert medicines', 'Controlled medicines',
+    'Reproductive medicines', 'Sexual-health medicines', 'Investigational',
+    'Withdrawn', 'Unapproved', 'Counterfeit', 'Illicit recreational drugs',
+    'Performance-enhancing substances', 'Toxic chemicals', 'Veterinary medicines',
+    'Herbal/traditional products', 'Supplements', 'Biologics & Gene Therapies'
+  ];
+
+  // Alphabet Array
   const alphabetLetters = ['All', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
+  // Visual Safety Risk Helper
+  const getVisualRiskBadge = (tier: VisualSafetyRiskTier) => {
+    switch (tier) {
+      case 'ROUTINE':
+        return { label: '🟢 Routine', bg: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50' };
+      case 'PRESCRIPTION':
+        return { label: '🔵 Prescription', bg: 'bg-blue-950/80 text-blue-300 border-blue-500/50' };
+      case 'CAUTION':
+        return { label: '🟡 Caution', bg: 'bg-yellow-950/80 text-yellow-300 border-yellow-500/50' };
+      case 'HIGH_ALERT':
+        return { label: '🟠 High Alert', bg: 'bg-orange-950/80 text-orange-300 border-orange-500/50' };
+      case 'CONTROLLED_RISK':
+        return { label: '🔴 Controlled / Serious Risk', bg: 'bg-rose-950/90 text-rose-300 border-rose-500/50' };
+      case 'SPECIALIST_HOSPITAL':
+        return { label: '🟣 Specialist / Hospital Only', bg: 'bg-purple-950/90 text-purple-300 border-purple-500/50' };
+      case 'ILLICIT_TOXICOLOGY':
+        return { label: '⚫ Illicit / Toxicology Record', bg: 'bg-slate-900 text-slate-300 border-slate-600' };
+    }
+  };
+
+  // Filtered Drugs
   const filteredDrugs = MASTER_DRUG_DATABASE.filter((drug) => {
     const matchLetter = selectedLetter === 'All' || drug.alphabetLetter.toUpperCase() === selectedLetter.toUpperCase();
     const query = searchQuery.toLowerCase();
     const matchSearch = 
       drug.genericName.toLowerCase().includes(query) ||
       drug.brandNames.some(b => b.toLowerCase().includes(query)) ||
+      (drug.streetNamesForensic && drug.streetNamesForensic.some(s => s.toLowerCase().includes(query))) ||
       drug.drugClass.toLowerCase().includes(query) ||
       drug.indications.some(i => i.toLowerCase().includes(query));
-    const matchCategory = selectedCategory === 'All' || drug.therapeuticCategory.includes(selectedCategory);
+    
+    const matchCategory = selectedSubstanceCategory === 'All' || drug.substanceCategory === selectedSubstanceCategory;
+    const matchRisk = selectedRiskTier === 'All' || drug.visualRiskTier === selectedRiskTier;
 
-    return matchLetter && matchSearch && matchCategory;
+    return matchLetter && matchSearch && matchCategory && matchRisk;
   });
 
   // 3D Canvas Molecular Renderer (Ball and Stick)
@@ -156,7 +203,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
 
       const bonds = selectedDrug.atoms3D?.bonds || [[0, 1], [0, 2]];
 
-      // Current Rotation
       let curX = rotationAngle.x;
       let curY = rotationAngle.y;
 
@@ -164,21 +210,17 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
         curY += 0.008;
       }
 
-      // 3D Transformation Math
       const transformedAtoms = atoms.map((atom) => {
-        // Rotate Y
         const cosY = Math.cos(curY);
         const sinY = Math.sin(curY);
         const x1 = atom.x * cosY + atom.z * sinY;
         const z1 = -atom.x * sinY + atom.z * cosY;
 
-        // Rotate X
         const cosX = Math.cos(curX);
         const sinX = Math.sin(curX);
         const y2 = atom.y * cosX - z1 * sinX;
         const z2 = atom.y * sinX + z1 * cosX;
 
-        // Perspective projection
         const fov = 300;
         const distance = 4;
         const projScale = fov / (fov + (z2 + distance) * 20);
@@ -193,10 +235,8 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
         };
       });
 
-      // Sort atoms by Z for proper depth rendering
       const sortedIndices = transformedAtoms.map((_, i) => i).sort((a, b) => transformedAtoms[a].pz - transformedAtoms[b].pz);
 
-      // Draw Bonds (Cylinders / Lines)
       ctx.lineWidth = 4;
       bonds.forEach(([i1, i2]) => {
         if (transformedAtoms[i1] && transformedAtoms[i2]) {
@@ -215,7 +255,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
         }
       });
 
-      // Draw Atoms (Glowing Spheres)
       sortedIndices.forEach((idx) => {
         const atom = transformedAtoms[idx];
         const rad = Math.max(6, atom.radius);
@@ -237,7 +276,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
         ctx.arc(atom.px, atom.py, rad, 0, Math.PI * 2);
         ctx.fill();
 
-        // Atom Symbol Label
         ctx.fillStyle = '#ffffff';
         ctx.font = `bold ${Math.max(9, Math.floor(rad * 0.9))}px monospace`;
         ctx.textAlign = 'center';
@@ -257,7 +295,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
     return () => cancelAnimationFrame(animationFrameId);
   }, [selectedDrug, isAutoSpin, rotationAngle]);
 
-  // Mouse drag to rotate molecule
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDragging(true);
     setIsAutoSpin(false);
@@ -277,7 +314,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
 
   const handleMouseUp = () => setIsDragging(false);
 
-  // Submit ADR Report
   const handleSubmitAdr = (e: React.FormEvent) => {
     e.preventDefault();
     const newReport: ADRSubmissionRecord = {
@@ -299,7 +335,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
     setTimeout(() => setAdrSubmittedSuccess(false), 4000);
   };
 
-  // Perform Barcode Verification
   const handleVerifyScan = (barcode: string) => {
     setVerifyBarcode(barcode);
     const found = BATCH_VERIFICATION_RECORDS.find(r => r.barcodeScanned === barcode);
@@ -324,8 +359,8 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
   return (
     <div className="w-full flex flex-col space-y-6 animate-fade-in text-slate-100">
       
-      {/* Top Hero Banner & System Overview */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#080e22] via-[#0e1b3d] to-[#080e22] border border-cyan-500/30 p-6 sm:p-8 shadow-2xl">
+      {/* Top Hero Banner & Master Universe Overview */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#070d24] via-[#0d1c44] to-[#070d24] border border-cyan-500/30 p-6 sm:p-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -336,61 +371,67 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                 <Pill className="w-6 h-6 animate-pulse" />
               </div>
               <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-cyan-950/90 text-cyan-300 border border-cyan-500/40">
-                MASTER PHARMACEUTICAL UNIVERSE v4.0
+                COMPLETE MEDICINE & SUBSTANCE UNIVERSE
               </span>
               <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-purple-950/80 text-purple-300 border border-purple-500/40">
-                75+ Clinical Classes • 3D Molecular Engine
+                20 Legal/Safety Groups • 36 Dosage Forms
               </span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              NOVA PHARMA & Drug Universe
+              NOVA PHARMA & Substance Intelligence
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
-              Complete A–Z pharmaceutical intelligence, 3D chemical ball-and-stick viewer, multidimensional drug-drug-food-disease interaction matrix, high-alert 5-rights bedside safety, emergency poisoning antidote registry, and GS1 counterfeit verification.
+              Taxonomic clinical pharmacology covering OTC, Rx, High-Alert, Controlled, Sexual & Reproductive Pharmacology, Sedatives/Hypnotics, Forensic Toxicology, PEDs & WADA Anti-Doping, Agricultural/Industrial Toxins, Injections with Y-Site Compatibility, Biologics, and GS1 Adulteration Scanners.
             </p>
           </div>
 
           {/* Quick Stats Pill Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto shrink-0 font-mono text-xs">
             <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
-              <span className="text-[10px] text-slate-400 block">Catalog Drugs</span>
-              <span className="text-lg font-black text-cyan-400">75+ Classes</span>
+              <span className="text-[10px] text-slate-400 block">Substance Classes</span>
+              <span className="text-lg font-black text-cyan-400">20 Groups</span>
             </div>
             <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
-              <span className="text-[10px] text-slate-400 block">Interactions</span>
-              <span className="text-lg font-black text-purple-400">Multidimensional</span>
+              <span className="text-[10px] text-slate-400 block">Dosage Forms</span>
+              <span className="text-lg font-black text-purple-400">36 Forms</span>
             </div>
             <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
-              <span className="text-[10px] text-slate-400 block">Cold-Chain</span>
-              <span className="text-lg font-black text-emerald-400">2°C - 8°C IoT</span>
+              <span className="text-[10px] text-slate-400 block">Visual Risk Tiers</span>
+              <span className="text-lg font-black text-emerald-400">7 Levels</span>
             </div>
             <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
-              <span className="text-[10px] text-slate-400 block">Antidotes</span>
-              <span className="text-lg font-black text-rose-400">Rapid Registry</span>
+              <span className="text-[10px] text-slate-400 block">Emergency Antidotes</span>
+              <span className="text-lg font-black text-rose-400">Rapid Index</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs Bar (9 Specialized Pharma Modules) */}
+      {/* Master Sub-Navigation Tabs Bar */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 no-scrollbar border-b border-slate-800">
         {[
-          { id: 'az_browser', label: '1. A–Z Drug Browser', icon: <Database className="w-4 h-4 text-cyan-400" /> },
-          { id: 'molecule_3d', label: '2. 3D Molecule & ADME', icon: <Brain className="w-4 h-4 text-purple-400" /> },
-          { id: 'interact', label: '3. NOVA INTERACT', icon: <Sparkles className="w-4 h-4 text-amber-400" /> },
-          { id: 'high_alert_safe', label: '4. High-Alert & 5-Rights', icon: <ShieldAlert className="w-4 h-4 text-rose-400" /> },
-          { id: 'poison_antidote', label: '5. Poisoning & Antidotes', icon: <Flame className="w-4 h-4 text-rose-500" /> },
-          { id: 'verify_counterfeit', label: '6. Counterfeit Batch Scanner', icon: <Scan className="w-4 h-4 text-cyan-400" /> },
-          { id: 'adr_vigilance', label: '7. ADR Pharmacovigilance', icon: <FileText className="w-4 h-4 text-emerald-400" /> },
-          { id: 'stock_coldchain', label: '8. Cold-Chain & Stock', icon: <Snowflake className="w-4 h-4 text-cyan-300" /> },
+          { id: 'az_browser', label: '1. A–Z Substance Browser', icon: <Database className="w-4 h-4 text-cyan-400" /> },
+          { id: 'injections_universe', label: '2. Injections & Y-Site Matrix', icon: <Syringe className="w-4 h-4 text-emerald-400" /> },
+          { id: 'reproductive_pharma', label: '3. Sexual & Reproductive', icon: <Heart className="w-4 h-4 text-pink-400" /> },
+          { id: 'sedatives_hypnotics', label: '4. Sedatives & Hypnotics', icon: <Brain className="w-4 h-4 text-purple-400" /> },
+          { id: 'forensic_substances', label: '5. Forensic Toxicology', icon: <Skull className="w-4 h-4 text-rose-500" /> },
+          { id: 'peds_wada', label: '6. PEDs & WADA Doping', icon: <Award className="w-4 h-4 text-amber-400" /> },
+          { id: 'poison_chemicals', label: '7. Poisons & Toxins', icon: <Biohazard className="w-4 h-4 text-yellow-400" /> },
+          { id: 'biologics_gene', label: '8. Biologics & ADCs', icon: <Dna className="w-4 h-4 text-cyan-300" /> },
+          { id: 'verify_counterfeit', label: '9. Counterfeit & Adulteration', icon: <Scan className="w-4 h-4 text-rose-400" /> },
+          { id: 'molecule_3d', label: '10. 3D Molecule & ADME', icon: <Sparkles className="w-4 h-4 text-purple-300" /> },
+          { id: 'interact', label: '11. NOVA INTERACT', icon: <Zap className="w-4 h-4 text-amber-400" /> },
+          { id: 'high_alert_safe', label: '12. High-Alert & 5-Rights', icon: <ShieldAlert className="w-4 h-4 text-rose-400" /> },
+          { id: 'adr_vigilance', label: '13. Pharmacovigilance', icon: <FileText className="w-4 h-4 text-emerald-400" /> },
+          { id: 'stock_coldchain', label: '14. Cold-Chain IoT', icon: <Snowflake className="w-4 h-4 text-cyan-300" /> },
         ].map((tab) => {
           const isActive = activePharmaTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActivePharmaTab(tab.id as PharmaViewTab)}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`flex items-center space-x-2 px-3.5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
                 isActive
                   ? 'bg-gradient-to-r from-cyan-500/30 via-blue-600/30 to-purple-600/30 text-white border border-cyan-400 shadow-glow-cyan font-black scale-105'
                   : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
@@ -404,15 +445,15 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
       </div>
 
       {/* =========================================================================
-          MODULE 1: A–Z DRUG BROWSER (SEARCH, FORMULATIONS, ROUTES & DOSING)
+          MODULE 1: MASTER A–Z SUBSTANCE & DRUG DIRECTORY (UNIVERSAL SEARCH)
           ========================================================================= */}
       {activePharmaTab === 'az_browser' && (
         <div className="space-y-6">
           
-          {/* Alphabet Index Filter & Search Bar */}
+          {/* Universal Filter Hub */}
           <div className="p-5 rounded-3xl bg-slate-950/80 border border-slate-800 space-y-4">
             
-            {/* Search + Formulation Filters */}
+            {/* Search + Risk Tier Filters */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="relative w-full sm:w-96">
                 <Search className="w-4 h-4 text-cyan-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -420,27 +461,56 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by Generic, Brand, Class, or Indication..."
+                  placeholder="Search by Generic, Brand, Street Name, Class, or Indication..."
                   className="w-full bg-slate-900 border border-slate-700 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 shadow-inner"
                 />
               </div>
 
-              <div className="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto no-scrollbar">
-                <span className="text-xs text-slate-400 shrink-0 font-medium">Category:</span>
-                {['All', 'Cardiovascular', 'Antibiotics', 'Emergency', 'Anesthesia', 'Endocrinology', 'Hematology'].map((cat) => (
+              {/* 7 Visual Risk Tier Filters */}
+              <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto">
+                <span className="text-[11px] text-slate-400 shrink-0 font-medium">Risk Tier:</span>
+                {['All', 'ROUTINE', 'PRESCRIPTION', 'CAUTION', 'HIGH_ALERT', 'CONTROLLED_RISK', 'SPECIALIST_HOSPITAL', 'ILLICIT_TOXICOLOGY'].map((tier) => (
                   <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                      selectedCategory === cat
+                    key={tier}
+                    onClick={() => setSelectedRiskTier(tier)}
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all ${
+                      selectedRiskTier === tier
                         ? 'bg-cyan-500 text-slate-950 font-black shadow-glow-cyan'
                         : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                     }`}
                   >
-                    {cat}
+                    {tier === 'All' ? 'All Risk' : tier === 'ROUTINE' ? '🟢 Routine' : tier === 'PRESCRIPTION' ? '🔵 Rx' : tier === 'HIGH_ALERT' ? '🟠 High-Alert' : tier === 'CONTROLLED_RISK' ? '🔴 Controlled' : tier === 'SPECIALIST_HOSPITAL' ? '🟣 Specialist' : '⚫ Illicit/Tox'}
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* 20 Substance Legal/Safety Categories */}
+            <div className="flex items-center space-x-1.5 overflow-x-auto py-1 no-scrollbar text-xs font-mono">
+              <span className="text-[11px] text-slate-400 shrink-0 font-medium font-sans">Legal Group:</span>
+              <button
+                onClick={() => setSelectedSubstanceCategory('All')}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                  selectedSubstanceCategory === 'All'
+                    ? 'bg-purple-600 text-white font-black shadow-glow-purple scale-105'
+                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                All Groups
+              </button>
+              {substanceUniverseCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedSubstanceCategory(cat)}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                    selectedSubstanceCategory === cat
+                      ? 'bg-cyan-500 text-slate-950 font-black shadow-glow-cyan scale-105'
+                      : 'bg-slate-900 text-slate-400 hover:text-cyan-300 border border-slate-800'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
 
             {/* A to Z Letter Filter Pills */}
@@ -462,10 +532,11 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
 
           </div>
 
-          {/* Drug Cards Grid */}
+          {/* Substance Cards Grid */}
           <div className="grid grid-cols-1 gap-4">
             {filteredDrugs.map((drug) => {
               const isExpanded = expandedDrugId === drug.id;
+              const riskBadge = getVisualRiskBadge(drug.visualRiskTier);
 
               return (
                 <div
@@ -476,7 +547,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                       : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
                   }`}
                 >
-                  {/* Card Main Header */}
+                  {/* Card Header */}
                   <div 
                     onClick={() => {
                       setExpandedDrugId(isExpanded ? null : drug.id);
@@ -494,6 +565,15 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                           <h3 className="text-lg font-black text-white">{drug.genericName}</h3>
                           <span className="text-xs font-mono text-slate-400">({drug.brandNames.join(', ')})</span>
                           
+                          {/* Visual Safety Risk Tier Badge */}
+                          <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold border ${riskBadge.bg}`}>
+                            {riskBadge.label}
+                          </span>
+
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-purple-950/90 text-purple-300 border border-purple-500/40">
+                            {drug.substanceCategory}
+                          </span>
+
                           {drug.isHighAlert && (
                             <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-500/50 flex items-center space-x-1">
                               <ShieldAlert className="w-3 h-3 text-rose-400" />
@@ -507,10 +587,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                               <span>2°C - 8°C ❄️</span>
                             </span>
                           )}
-
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-slate-900 text-slate-300 border border-slate-700">
-                            {drug.legalStatus}
-                          </span>
                         </div>
 
                         <p className="text-xs font-mono text-cyan-400 font-medium">
@@ -525,7 +601,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
 
                     <div className="flex items-center space-x-3 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-800">
                       <div className="text-left lg:text-right font-mono text-xs">
-                        <span className="text-[10px] text-slate-400 block">Stock Available</span>
+                        <span className="text-[10px] text-slate-400 block">Available Stock</span>
                         <span className="font-bold text-emerald-400">{drug.inventoryStock} units</span>
                       </div>
 
@@ -547,7 +623,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                     </div>
                   </div>
 
-                  {/* Expanded Complete Clinical Details Panel */}
+                  {/* Expanded Full Monograph Details Panel */}
                   {isExpanded && (
                     <div className="p-6 border-t border-slate-800/90 bg-[#060a18] space-y-6 text-xs animate-fade-in">
                       
@@ -556,7 +632,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                         <div className="p-4 rounded-2xl bg-rose-950/60 border border-rose-500/50 text-rose-200 space-y-1">
                           <div className="flex items-center space-x-2 font-black text-rose-400 uppercase tracking-wider">
                             <AlertOctagon className="w-4 h-4" />
-                            <span>FDA Boxed Warning / Critical Safety Mandate</span>
+                            <span>FDA Boxed Warning / Safety Mandate</span>
                           </div>
                           <p className="text-xs leading-relaxed text-rose-100 font-medium">
                             {drug.blackBoxWarnings}
@@ -564,7 +640,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                         </div>
                       )}
 
-                      {/* 4-Column Clinical Matrix */}
+                      {/* 4-Column Clinical Details Matrix */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         
                         {/* 1. Indications & Dosage Forms */}
@@ -573,7 +649,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                             Indications & Formulations
                           </span>
                           <div className="space-y-1">
-                            <span className="text-slate-400 font-semibold block text-[11px]">Approved Indications:</span>
+                            <span className="text-slate-400 font-semibold block text-[11px]">Approved Medical Uses:</span>
                             <ul className="list-disc list-inside text-slate-200 space-y-0.5">
                               {drug.indications.map((ind, i) => (
                                 <li key={i}>{ind}</li>
@@ -629,52 +705,55 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                           </div>
                         </div>
 
-                        {/* 4. Special Populations */}
+                        {/* 4. Substance Safety & Abuse Profile */}
                         <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
                           <span className="font-black text-emerald-400 uppercase tracking-wider block">
-                            Special Populations
+                            Special Safety & Risk Profile
                           </span>
                           <div className="space-y-1 text-[11px]">
                             <p><strong className="text-slate-400">Pregnancy FDA:</strong> <span className="font-bold text-amber-300">Category {drug.pregnancyCategory}</span></p>
                             <p><strong className="text-slate-400">Lactation:</strong> <span className="text-slate-300">{drug.lactationSafety}</span></p>
-                            <p><strong className="text-slate-400">Pediatric mg/kg:</strong> <span className="text-cyan-300 font-mono">{drug.pediatricDosingRule}</span></p>
-                            {drug.geriatricBeersWarning && (
-                              <p className="text-amber-300 pt-1">
-                                <strong>👴 Beers Criteria:</strong> {drug.geriatricBeersWarning}
+                            {drug.dependencePotential && (
+                              <p><strong className="text-slate-400">Dependence Potential:</strong> <span className="text-rose-300 font-bold">{drug.dependencePotential}</span></p>
+                            )}
+                            {drug.wadaProhibitionStatus && (
+                              <p className="text-amber-300">
+                                <strong>🏅 WADA Status:</strong> {drug.wadaProhibitionStatus}
                               </p>
                             )}
-                            <p><strong className="text-slate-400">Renal (eGFR):</strong> <span className="text-slate-300">{drug.renalAdjustmentGFR}</span></p>
+                            {drug.geriatricBeersWarning && (
+                              <p className="text-amber-300 pt-1">
+                                <strong>👴 Beers Warning:</strong> {drug.geriatricBeersWarning}
+                              </p>
+                            )}
                           </div>
                         </div>
 
                       </div>
 
-                      {/* Chemical Properties & GS1 Barcode */}
-                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-[11px]">
-                        <div className="space-y-0.5">
-                          <p><strong className="text-slate-400">Chemical Name:</strong> <span className="text-slate-300">{drug.chemicalName}</span></p>
-                          <p><strong className="text-slate-400">Molecular Formula:</strong> <span className="text-cyan-300 font-bold">{drug.molecularFormula}</span> (MW: {drug.molecularWeight} g/mol)</p>
-                          <p><strong className="text-slate-400">SMILES:</strong> <span className="text-purple-300 text-[10px] break-all">{drug.smilesNotation}</span></p>
-                        </div>
-
-                        <div className="flex items-center space-x-3 shrink-0">
-                          <div className="text-right">
-                            <span className="text-[10px] text-slate-400 block">Batch & GS1 GTIN</span>
-                            <span className="text-slate-200 font-bold">{drug.batchNumber}</span>
+                      {/* Injection Compatibility Profile if applicable */}
+                      {drug.injectionProfile && (
+                        <div className="p-4 rounded-2xl bg-[#091129] border border-emerald-500/40 space-y-2">
+                          <span className="font-black text-emerald-300 text-xs uppercase flex items-center space-x-1.5">
+                            <Syringe className="w-4 h-4 text-emerald-400" />
+                            <span>Injection & IV Infusion Compatibility Profile</span>
+                          </span>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-[11px]">
+                            <div>
+                              <strong className="text-emerald-400 block">✓ Compatible Diluents:</strong>
+                              <span className="text-slate-200">{drug.injectionProfile.compatibleDiluents.join(', ')}</span>
+                            </div>
+                            <div>
+                              <strong className="text-rose-400 block">✗ Incompatible Diluents / Drugs:</strong>
+                              <span className="text-slate-200">{drug.injectionProfile.incompatibleDiluents.concat(drug.injectionProfile.ySiteIncompatibleDrugs).join(', ')}</span>
+                            </div>
+                            <div>
+                              <strong className="text-cyan-400 block">⚙️ Administration Rules:</strong>
+                              <span className="text-slate-300">{drug.injectionProfile.maximumInfusionRate} • {drug.injectionProfile.filterRequirement}</span>
+                            </div>
                           </div>
-                          <button
-                            onClick={() => {
-                              setVerifyBarcode(drug.barcodeGS1);
-                              setActivePharmaTab('verify_counterfeit');
-                              handleVerifyScan(drug.barcodeGS1);
-                            }}
-                            className="px-3 py-2 rounded-xl bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold flex items-center space-x-1.5 shadow-glow-cyan"
-                          >
-                            <Scan className="w-3.5 h-3.5" />
-                            <span>Scan Batch</span>
-                          </button>
                         </div>
-                      </div>
+                      )}
 
                     </div>
                   )}
@@ -688,7 +767,527 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
       )}
 
       {/* =========================================================================
-          MODULE 2: 3D MOLECULAR & CHEMICAL ADME VIEWER (NOVA MOLECULE)
+          MODULE 2: INJECTIONS & INFUSIONS UNIVERSE (Y-SITE COMPATIBILITY MATRIX)
+          ========================================================================= */}
+      {activePharmaTab === 'injections_universe' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+              INJECTION & INFUSION UNIVERSE
+            </span>
+            <h3 className="text-lg font-black text-white">
+              Specialized Parenteral Routes & Y-Site Compatibility Matrix
+            </h3>
+            <p className="text-xs text-slate-400">
+              Clinical validation for Intravenous (IV), Intramuscular (IM), Subcutaneous (SC), Intradermal, Intra-articular, Epidural, Intrathecal, and Intraosseous parenteral drug administration.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {MASTER_DRUG_DATABASE.filter(d => d.routes.some(r => r.includes('Intravenous') || r.includes('Intramuscular') || r.includes('Subcutaneous'))).map((drug) => (
+              <div key={drug.id} className="p-5 rounded-3xl bg-[#080d20] border border-slate-800 hover:border-emerald-500/40 transition-all space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                      {drug.routes.join(' • ')}
+                    </span>
+                    <span className="text-[10px] font-mono text-cyan-400 font-bold">{drug.legalStatus}</span>
+                  </div>
+
+                  <h4 className="text-sm font-black text-white">{drug.genericName}</h4>
+                  <p className="text-xs font-mono text-purple-300">{drug.availableStrengths.join(', ')}</p>
+                  
+                  <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] space-y-1 font-mono">
+                    <p><strong className="text-slate-400">Storage:</strong> <span className="text-slate-200">{drug.storageRequirement}</span></p>
+                    <p><strong className="text-slate-400">High-Alert:</strong> <span className={drug.isHighAlert ? 'text-rose-400 font-bold' : 'text-slate-400'}>{drug.isHighAlert ? 'YES ⚠️ (Dual Nurse Check)' : 'No'}</span></p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-300">
+                  {drug.injectionProfile ? (
+                    <div className="space-y-1">
+                      <p><strong className="text-emerald-400">Diluent:</strong> {drug.injectionProfile.compatibleDiluents.join(', ')}</p>
+                      <p><strong className="text-rose-400">Incompatible:</strong> {drug.injectionProfile.incompatibleDiluents.join(', ')}</p>
+                    </div>
+                  ) : (
+                    <p className="text-slate-400 italic">Standard parenteral administration protocol.</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 3: SEXUAL & REPRODUCTIVE PHARMACOLOGY
+          ========================================================================= */}
+      {activePharmaTab === 'reproductive_pharma' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-pink-950 text-pink-300 border border-pink-500/40">
+              SEXUAL & REPRODUCTIVE PHARMACOLOGY
+            </span>
+            <h3 className="text-lg font-black text-white">
+              Erectile Dysfunction, Hormonal Therapies, Contraceptives & Regulated Protocols
+            </h3>
+            <p className="text-xs text-slate-400">
+              Clinical pharmacology reference for PDE-5 inhibitors (Sildenafil, Tadalafil), Emergency Contraceptives (Levonorgestrel), and Regulated Termination Reference (Mifepristone / Misoprostol).
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {MASTER_DRUG_DATABASE.filter(d => d.substanceCategory === 'Sexual-health medicines' || d.substanceCategory === 'Reproductive medicines').map((drug) => (
+              <div key={drug.id} className="p-5 rounded-3xl bg-[#090e24] border border-pink-500/30 space-y-3.5 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-pink-950 text-pink-300 border border-pink-500/40">
+                      {drug.substanceCategory}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">{drug.legalStatus}</span>
+                  </div>
+
+                  <h4 className="text-sm font-black text-white">{drug.genericName}</h4>
+                  <p className="text-xs font-mono text-purple-300">{drug.drugClass}</p>
+
+                  <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs space-y-1">
+                    <strong className="text-pink-300 block text-[11px]">Primary Clinical Uses:</strong>
+                    <ul className="list-disc list-inside text-slate-300 text-[11px] space-y-0.5">
+                      {drug.indications.map((ind, i) => (
+                        <li key={i}>{ind}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {drug.blackBoxWarnings && (
+                    <div className="p-3 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-[11px] text-rose-200">
+                      <strong className="text-rose-400 block mb-1">⚠️ Safety Mandate:</strong>
+                      {drug.blackBoxWarnings}
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-slate-800 text-[11px] font-mono flex justify-between text-slate-400">
+                  <span>Pregnancy: <strong>Cat {drug.pregnancyCategory}</strong></span>
+                  <span className="text-cyan-400">Stock: {drug.inventoryStock} units</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 4: SEDATIVES, HYPNOTICS & SLEEP MEDICINES
+          ========================================================================= */}
+      {activePharmaTab === 'sedatives_hypnotics' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-500/40">
+              SEDATIVES & SLEEP MEDICINES
+            </span>
+            <h3 className="text-lg font-black text-white">
+              Benzodiazepines, Non-Benzodiazepine Z-Hypnotics & Sedation Depth Controls
+            </h3>
+            <p className="text-xs text-slate-400">
+              ⚠️ CNS Depressant Warning: High risk of respiratory impairment, anterograde amnesia, complex sleep behaviors, and fatal depression when combined with alcohol or opioids.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {MASTER_DRUG_DATABASE.filter(d => d.drugClass.includes('Benzodiazepine') || d.drugClass.includes('Hypnotic')).map((drug) => (
+              <div key={drug.id} className="p-5 rounded-3xl bg-[#090d22] border border-purple-500/30 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-500/50">
+                      🔴 SCHEDULE IV CONTROLLED
+                    </span>
+                    <span className="text-[10px] font-mono text-purple-300">Dependence: {drug.dependencePotential}</span>
+                  </div>
+
+                  <h4 className="text-base font-black text-white">{drug.genericName}</h4>
+                  <p className="text-xs font-mono text-cyan-400">{drug.drugClass}</p>
+
+                  <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs space-y-1">
+                    <strong className="text-purple-300 block text-[11px]">Approved Indications:</strong>
+                    <ul className="list-disc list-inside text-slate-300 text-[11px] space-y-0.5">
+                      {drug.indications.map((ind, i) => (
+                        <li key={i}>{ind}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-[11px] text-rose-200 space-y-1">
+                    <strong className="text-rose-400 block">⚠️ Depressant & Black Box Warning:</strong>
+                    <p>{drug.blackBoxWarnings}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] font-mono space-y-1">
+                  <p><strong className="text-slate-400">Withdrawal Risk:</strong> <span className="text-amber-300">{drug.withdrawalRisk}</span></p>
+                  <p><strong className="text-slate-400">Geriatric Warning:</strong> <span className="text-rose-300">{drug.geriatricBeersWarning}</span></p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 5: FORENSIC TOXICOLOGY & ILLICIT RECREATIONAL SUBSTANCES
+          ========================================================================= */}
+      {activePharmaTab === 'forensic_substances' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-500/40">
+              FORENSIC TOXICOLOGY & SUBSTANCE MEDICINE
+            </span>
+            <h3 className="text-lg font-black text-white">
+              Controlled & Illicit Substance Overdose Toxidromes & Forensic Standards
+            </h3>
+            <p className="text-xs text-slate-400">
+              Forensic references for Opioids, Sympathomimetic Stimulants, Dissociatives, and Psychedelics (Clinical resuscitation protocols, not recreational use instructions).
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {MASTER_DRUG_DATABASE.filter(d => d.substanceCategory === 'Illicit recreational drugs' || d.visualRiskTier === 'ILLICIT_TOXICOLOGY').map((drug) => (
+              <div key={drug.id} className="p-5 rounded-3xl bg-[#090c1e] border border-rose-500/40 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-slate-900 text-rose-400 border border-slate-700">
+                      ⚫ FORENSIC STANDARD
+                    </span>
+                    <span className="text-[10px] font-mono text-rose-300 font-bold">Abuse: {drug.abusePotential}</span>
+                  </div>
+
+                  <h4 className="text-base font-black text-white">{drug.genericName}</h4>
+                  <p className="text-xs font-mono text-purple-300">Class: {drug.drugClass}</p>
+
+                  {drug.streetNamesForensic && (
+                    <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-300">
+                      <strong className="text-amber-400">Street Aliases:</strong> {drug.streetNamesForensic.join(', ')}
+                    </div>
+                  )}
+
+                  <div className="p-3 rounded-2xl bg-rose-950/50 border border-rose-500/40 text-[11px] text-rose-100 space-y-1">
+                    <strong className="text-rose-400 block">☠️ Overdose Toxidrome & Emergency Management:</strong>
+                    <p>{drug.blackBoxWarnings}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] font-mono space-y-1">
+                  <p><strong className="text-slate-400">Withdrawal Manifestation:</strong> <span className="text-rose-300">{drug.withdrawalRisk}</span></p>
+                  <p><strong className="text-slate-400">Therapeutic Window:</strong> <span className="text-amber-300">{drug.adme.therapeuticWindow}</span></p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 6: PERFORMANCE-ENHANCING SUBSTANCES (PEDs & WADA DIRECTORY)
+          ========================================================================= */}
+      {activePharmaTab === 'peds_wada' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-500/40">
+              WADA ANTI-DOPING & PEDs DIRECTORY
+            </span>
+            <h3 className="text-lg font-black text-white">
+              Anabolic-Androgenic Steroids, SARMs, Growth Factors & Sport Prohibition
+            </h3>
+            <p className="text-xs text-slate-400">
+              Clinical hazards of athletic doping: Endocrine axis shutdown, severe left ventricular cardiomyopathy, peliosis hepatis, and WADA S1-S5 classification.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {MASTER_DRUG_DATABASE.filter(d => d.substanceCategory === 'Performance-enhancing substances').map((drug) => (
+              <div key={drug.id} className="p-5 rounded-3xl bg-[#090e24] border border-amber-500/40 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-500/50">
+                      🏅 WADA PROHIBITED
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">{drug.legalStatus}</span>
+                  </div>
+
+                  <h4 className="text-base font-black text-white">{drug.genericName}</h4>
+                  <p className="text-xs font-mono text-cyan-400">{drug.wadaProhibitionStatus}</p>
+
+                  <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs space-y-1">
+                    <strong className="text-amber-300 block text-[11px]">Cardiovascular & Endocrine Hazards:</strong>
+                    <p className="text-slate-300 leading-relaxed text-[11px]">{drug.blackBoxWarnings}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] font-mono space-y-1">
+                  <p><strong className="text-slate-400">Adulteration / Counterfeit Risk:</strong> <span className="text-rose-300">{drug.adulterationRiskNotes}</span></p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 7: POISON & CHEMICAL HAZARDS (PESTICIDES, METALS, GASES)
+          ========================================================================= */}
+      {activePharmaTab === 'poison_chemicals' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-500/40">
+              TOXICOLOGY & CHEMICAL UNIVERSE
+            </span>
+            <h3 className="text-lg font-black text-white">
+              Pesticides, Heavy Metals, Toxic Gases, Mushroom & Animal Toxins
+            </h3>
+            <p className="text-xs text-slate-400">
+              Exposure pathways, emergency decontamination, clinical toxidromes, and targeted antidotes.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {POISONING_ANTIDOTE_REGISTRY.map((tox) => (
+              <div key={tox.id} className="p-5 rounded-3xl bg-[#080d1e] border border-slate-800 hover:border-rose-500/50 transition-all space-y-3.5 flex flex-col justify-between">
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-black bg-rose-950 text-rose-300 border border-rose-500/50">
+                      {tox.ghsHazardSymbol}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">{tox.poisonControlCode}</span>
+                  </div>
+
+                  <h4 className="text-sm font-black text-white leading-snug">
+                    {tox.toxinName}
+                  </h4>
+
+                  <div className="space-y-1 text-xs">
+                    <span className="text-[11px] font-bold text-slate-400 block">Toxidrome Symptoms:</span>
+                    <ul className="list-disc list-inside text-rose-200/90 space-y-0.5 text-[11px]">
+                      {tox.clinicalSymptoms.map((sym, i) => (
+                        <li key={i}>{sym}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 space-y-2 text-xs">
+                  <div className="p-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase block">Primary Antidote & Dose:</span>
+                    <strong className="text-white text-xs block">{tox.primaryAntidote}</strong>
+                    <p className="text-[11px] text-emerald-200 leading-relaxed font-mono">
+                      {tox.antidoteDoseProtocol}
+                    </p>
+                  </div>
+
+                  <p className="text-[10px] font-mono text-slate-400">
+                    🏥 Unit Required: <strong className="text-cyan-300">{tox.hospitalUnitRequired}</strong>
+                  </p>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 8: BIOLOGICS, MONOCLONAL ANTIBODIES & GENE THERAPY
+          ========================================================================= */}
+      {activePharmaTab === 'biologics_gene' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+              BIOLOGIC MEDICINES & GENE THERAPY
+            </span>
+            <h3 className="text-lg font-black text-white">
+              Monoclonal Antibodies, ADCs, Recombinant Factors, Cell & Gene Therapies
+            </h3>
+            <p className="text-xs text-slate-400">
+              Targeted immunotherapies, immune checkpoint inhibitors, immune-mediated adverse reactions (irAEs), and cold-chain integrity.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {MASTER_DRUG_DATABASE.filter(d => d.substanceCategory === 'Specialist prescription' || d.isColdChain).map((drug) => (
+              <div key={drug.id} className="p-5 rounded-3xl bg-[#090f28] border border-cyan-500/40 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/50">
+                      🧬 BIOLOGIC / MONOCLONAL
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">{drug.legalStatus}</span>
+                  </div>
+
+                  <h4 className="text-base font-black text-white">{drug.genericName}</h4>
+                  <p className="text-xs font-mono text-purple-300">{drug.drugClass}</p>
+
+                  <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs space-y-1">
+                    <strong className="text-cyan-300 block text-[11px]">Approved Oncology / Biological Indications:</strong>
+                    <ul className="list-disc list-inside text-slate-300 text-[11px] space-y-0.5">
+                      {drug.indications.map((ind, i) => (
+                        <li key={i}>{ind}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {drug.blackBoxWarnings && (
+                    <div className="p-3 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-[11px] text-rose-200">
+                      <strong className="text-rose-400 block mb-1">⚠️ Safety Warning:</strong>
+                      {drug.blackBoxWarnings}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] font-mono flex justify-between">
+                  <span>Storage: <strong className="text-cyan-300">{drug.storageRequirement}</strong></span>
+                  <span className="text-emerald-400">Stock: {drug.inventoryStock} vials</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 9: COUNTERFEIT & ADULTERATION SCANNER (NOVA VERIFY)
+          ========================================================================= */}
+      {activePharmaTab === 'verify_counterfeit' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Left GS1 Barcode Scanner Input */}
+          <div className="lg:col-span-5 p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-4">
+            <div>
+              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+                NOVA VERIFY • GS1 DATAMATRIX
+              </span>
+              <h3 className="text-lg font-black text-white mt-1">
+                Medicine Authentication & Recall Scanner
+              </h3>
+              <p className="text-xs text-slate-400">
+                Scan pharmaceutical barcodes, tamper-evident seals, and batch serials against the global cryptographic drug ledger.
+              </p>
+            </div>
+
+            {/* Quick Test Barcode Buttons */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-bold text-slate-400 uppercase">Test Barcode Scans:</span>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleVerifyScan('010030069001021721008941B17271130')}
+                  className="w-full p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 text-left text-xs font-mono flex items-center justify-between"
+                >
+                  <span className="text-emerald-300">✓ Atorvastatin 20mg (Authentic)</span>
+                  <span className="text-slate-500 text-[10px]">LOT-ATOR-8941B</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleVerifyScan('01003009999999999999FAKEBATCH2026')}
+                  className="w-full p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-rose-500/40 text-left text-xs font-mono flex items-center justify-between"
+                >
+                  <span className="text-rose-300">⚠️ Fake Semaglutide (Counterfeit)</span>
+                  <span className="text-slate-500 text-[10px]">UNREGISTERED</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleVerifyScan('01003008888888888888ADULTERATEDCOFFEE')}
+                  className="w-full p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/40 text-left text-xs font-mono flex items-center justify-between"
+                >
+                  <span className="text-amber-300">⚠️ Undeclared Sildenafil in Coffee</span>
+                  <span className="text-slate-500 text-[10px]">ADULTERATION</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Custom Barcode Input */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-400 uppercase">Custom GS1 Barcode</label>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={verifyBarcode}
+                  onChange={(e) => setVerifyBarcode(e.target.value)}
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono"
+                />
+                <button
+                  onClick={() => handleVerifyScan(verifyBarcode)}
+                  className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold shadow-glow-cyan"
+                >
+                  Audit
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Authentication Certificate Result */}
+          <div className="lg:col-span-7 p-6 rounded-3xl bg-[#080d20] border border-cyan-500/40 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-5 h-5 text-cyan-400" />
+                <h4 className="text-base font-black text-white">Cryptographic Authentication Report</h4>
+              </div>
+
+              <span className={`px-3 py-1 rounded-xl text-xs font-mono font-black ${
+                currentVerificationReport.status === 'AUTHENTIC_VERIFIED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500' :
+                currentVerificationReport.status === 'COUNTERFEIT_DETECTED' ? 'bg-rose-950 text-rose-300 border border-rose-500 animate-pulse' :
+                'bg-amber-950 text-amber-300 border border-amber-500'
+              }`}>
+                {currentVerificationReport.status === 'AUTHENTIC_VERIFIED' ? '✓ AUTHENTIC VERIFIED' :
+                 currentVerificationReport.status === 'COUNTERFEIT_DETECTED' ? '⚠️ COUNTERFEIT / ADULTERATED' : 'BATCH RECALL'}
+              </span>
+            </div>
+
+            <div className="space-y-2.5 font-mono text-xs">
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
+                <span className="text-slate-400">Product Name:</span>
+                <span className="text-white font-bold">{currentVerificationReport.drugName}</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
+                <span className="text-slate-400">Manufacturer:</span>
+                <span className="text-slate-200">{currentVerificationReport.manufacturer}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
+                  <span className="text-slate-400">Mfg Date:</span>
+                  <span className="text-slate-200">{currentVerificationReport.manufactureDate}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
+                  <span className="text-slate-400">Expiry:</span>
+                  <span className="text-slate-200">{currentVerificationReport.expiryDate}</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                <span className="text-slate-400 block">Blockchain Ledger Token:</span>
+                <span className="text-cyan-300 text-[10px] break-all block">{currentVerificationReport.blockchainHash}</span>
+              </div>
+            </div>
+
+            <div className={`p-4 rounded-2xl border text-xs leading-relaxed ${
+              currentVerificationReport.status === 'AUTHENTIC_VERIFIED'
+                ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-200'
+                : 'bg-rose-950/50 border-rose-500/40 text-rose-200'
+            }`}>
+              {currentVerificationReport.safetyNotice}
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODULE 10: 3D MOLECULAR & CHEMICAL ADME VIEWER (NOVA MOLECULE)
           ========================================================================= */}
       {activePharmaTab === 'molecule_3d' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -739,13 +1338,13 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
               />
 
               <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md border border-slate-800 text-[10px] font-mono text-slate-400">
-                Drag to rotate 360° • Chemical element colors: C(Cyan), O(Red), N(Purple), S(Yellow), F(Green)
+                Drag to rotate 360° • Elements: C(Cyan), O(Red), N(Purple), S(Yellow), F(Green)
               </div>
             </div>
 
             {/* Drug Selector Quick Switcher */}
             <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pt-2">
-              <span className="text-xs text-slate-400 shrink-0 font-medium">Select Molecule:</span>
+              <span className="text-xs text-slate-400 shrink-0 font-medium">Select Substance:</span>
               {MASTER_DRUG_DATABASE.map((d) => (
                 <button
                   key={d.id}
@@ -770,7 +1369,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
               <span>Pharmacokinetics & ADME Continuum</span>
             </h4>
 
-            {/* ADME Progress & Property Breakdown */}
             <div className="space-y-3.5 text-xs">
               
               {/* Absorption */}
@@ -843,26 +1441,20 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
       )}
 
       {/* =========================================================================
-          MODULE 3: MULTIDIMENSIONAL INTERACTION MATRIX (NOVA INTERACT)
+          MODULE 11: MULTIDIMENSIONAL INTERACTION MATRIX (NOVA INTERACT)
           ========================================================================= */}
       {activePharmaTab === 'interact' && (
         <div className="space-y-6">
-          
-          {/* Interaction Checker Tool */}
           <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-6">
             <div>
               <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-500/40">
                 NOVA INTERACT ENGINE
               </span>
               <h3 className="text-lg font-black text-white mt-1">
-                Multidimensional Drug, Food, Disease & Lab Interaction Matrix
+                Multidimensional Drug, Food, Alcohol, Disease & Lab Interactions
               </h3>
-              <p className="text-xs text-slate-400">
-                Evaluate cross-pharmacological risks across 5 dimensions: Drug-Drug, Drug-Food, Drug-Alcohol, Drug-Disease, and Drug-Lab.
-              </p>
             </div>
 
-            {/* Interactive Selectors */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-300 uppercase">Primary Medication</label>
@@ -894,7 +1486,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
               </div>
             </div>
 
-            {/* Interaction Results Cards */}
             <div className="space-y-3 pt-2">
               {interactDrugA.interactions.map((interaction, idx) => {
                 const isSelected = interaction.targetName === interactTarget;
@@ -954,17 +1545,14 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
             </div>
 
           </div>
-
         </div>
       )}
 
       {/* =========================================================================
-          MODULE 4: HIGH-ALERT & 5-RIGHTS BEDSIDE SAFETY (NOVA SAFE)
+          MODULE 12: HIGH-ALERT & 5-RIGHTS (NOVA SAFE)
           ========================================================================= */}
       {activePharmaTab === 'high_alert_safe' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left High-Alert Drug Directory */}
           <div className="lg:col-span-6 p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-4">
             <div>
               <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-500/40">
@@ -973,9 +1561,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
               <h3 className="text-lg font-black text-white mt-1">
                 ISMP High-Alert Medication Verification
               </h3>
-              <p className="text-xs text-slate-400">
-                High-alert medications bear heightened risk of causing significant patient harm when used in error. Mandatory independent dual-nurse verification required.
-              </p>
             </div>
 
             <div className="space-y-3">
@@ -996,10 +1581,8 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                 </div>
               ))}
             </div>
-
           </div>
 
-          {/* Right 5-Rights Bedside Verification Simulator */}
           <div className="lg:col-span-6 p-6 rounded-3xl bg-[#090f24] border border-cyan-500/40 shadow-2xl space-y-5">
             <div>
               <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
@@ -1010,14 +1593,13 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
               </h3>
             </div>
 
-            {/* 5-Rights Checklist */}
             <div className="space-y-2.5 font-mono text-xs">
               {[
                 { key: 'patient', label: '1. Right Patient', value: `${patient?.name || 'Arthur Pendelton'} (${patient?.id || 'P203'})` },
-                { key: 'drug', label: '2. Right Drug', value: 'Human Regular Insulin U-100 (Humulin R)' },
-                { key: 'dose', label: '3. Right Dose', value: '6 Units Subcutaneous (Sliding Scale)' },
-                { key: 'route', label: '4. Right Route', value: 'Subcutaneous (Abdomen)' },
-                { key: 'time', label: '5. Right Time', value: 'Pre-Meal (Within 30 mins of carbohydrate intake)' },
+                { key: 'drug', label: '2. Right Drug', value: 'Sildenafil Citrate 50 mg (Viagra)' },
+                { key: 'dose', label: '3. Right Dose', value: '50 mg Oral Once Daily PRN' },
+                { key: 'route', label: '4. Right Route', value: 'Oral (Swallow with water)' },
+                { key: 'time', label: '5. Right Time', value: 'Pre-Activity (30-60 mins prior)' },
               ].map((item) => (
                 <div key={item.key} className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
                   <div>
@@ -1031,7 +1613,6 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
               ))}
             </div>
 
-            {/* Barcode Wristband Scan Simulation */}
             <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
               <span className="text-slate-400 font-bold block">Patient Wristband Barcode Scan:</span>
               <div className="flex items-center space-x-2">
@@ -1058,204 +1639,14 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
             </div>
 
           </div>
-
         </div>
       )}
 
       {/* =========================================================================
-          MODULE 5: POISONING & EMERGENCY ANTIDOTE REGISTRY (NOVA TOX)
-          ========================================================================= */}
-      {activePharmaTab === 'poison_antidote' && (
-        <div className="space-y-6">
-          <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
-            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-500/40">
-              NOVA TOX • EMERGENCY TOXICOLOGY
-            </span>
-            <h3 className="text-lg font-black text-white">
-              Poisoning, Overdose & Rapid Antidote Protocol Registry
-            </h3>
-            <p className="text-xs text-slate-400">
-              Immediate hospital protocol references for acute drug toxicities, heavy metal exposures, industrial gas poisonings, and snake/spider venoms.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {POISONING_ANTIDOTE_REGISTRY.map((tox) => (
-              <div key={tox.id} className="p-5 rounded-3xl bg-[#080d1e] border border-slate-800 hover:border-rose-500/50 transition-all space-y-3.5 flex flex-col justify-between">
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-black bg-rose-950 text-rose-300 border border-rose-500/50">
-                      {tox.ghsHazardSymbol}
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">{tox.poisonControlCode}</span>
-                  </div>
-
-                  <h4 className="text-sm font-black text-white leading-snug">
-                    {tox.toxinName}
-                  </h4>
-
-                  <div className="space-y-1 text-xs">
-                    <span className="text-[11px] font-bold text-slate-400 block">Toxidrome Symptoms:</span>
-                    <ul className="list-disc list-inside text-rose-200/90 space-y-0.5 text-[11px]">
-                      {tox.clinicalSymptoms.map((sym, i) => (
-                        <li key={i}>{sym}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-800 space-y-2 text-xs">
-                  <div className="p-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase block">Primary Antidote & Dose:</span>
-                    <strong className="text-white text-xs block">{tox.primaryAntidote}</strong>
-                    <p className="text-[11px] text-emerald-200 leading-relaxed font-mono">
-                      {tox.antidoteDoseProtocol}
-                    </p>
-                  </div>
-
-                  <p className="text-[10px] font-mono text-slate-400">
-                    🏥 Unit Required: <strong className="text-cyan-300">{tox.hospitalUnitRequired}</strong>
-                  </p>
-                </div>
-
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================================
-          MODULE 6: COUNTERFEIT BATCH SCANNER & RECALLS (NOVA VERIFY)
-          ========================================================================= */}
-      {activePharmaTab === 'verify_counterfeit' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left GS1 Barcode Scanner Input */}
-          <div className="lg:col-span-5 p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-4">
-            <div>
-              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
-                NOVA VERIFY • GS1 DATAMATRIX
-              </span>
-              <h3 className="text-lg font-black text-white mt-1">
-                Medicine Authentication & Recall Scanner
-              </h3>
-              <p className="text-xs text-slate-400">
-                Scan pharmaceutical barcodes, tamper-evident seals, and batch serials against the global cryptographic drug ledger.
-              </p>
-            </div>
-
-            {/* Quick Test Barcode Buttons */}
-            <div className="space-y-2">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Test Barcode Scans:</span>
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => handleVerifyScan('010030069001021721008941B17271130')}
-                  className="w-full p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 text-left text-xs font-mono flex items-center justify-between"
-                >
-                  <span className="text-emerald-300">✓ Atorvastatin 20mg (Authentic)</span>
-                  <span className="text-slate-500 text-[10px]">LOT-ATOR-8941B</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleVerifyScan('01003009999999999999FAKEBATCH2026')}
-                  className="w-full p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-rose-500/40 text-left text-xs font-mono flex items-center justify-between"
-                >
-                  <span className="text-rose-300">⚠️ Fake Semaglutide (Counterfeit)</span>
-                  <span className="text-slate-500 text-[10px]">UNREGISTERED</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Custom Barcode Input */}
-            <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-400 uppercase">Custom GS1 Barcode</label>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="text"
-                  value={verifyBarcode}
-                  onChange={(e) => setVerifyBarcode(e.target.value)}
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono"
-                />
-                <button
-                  onClick={() => handleVerifyScan(verifyBarcode)}
-                  className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold shadow-glow-cyan"
-                >
-                  Audit
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Right Authentication Certificate Result */}
-          <div className="lg:col-span-7 p-6 rounded-3xl bg-[#080d20] border border-cyan-500/40 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center space-x-2">
-                <ShieldCheck className="w-5 h-5 text-cyan-400" />
-                <h4 className="text-base font-black text-white">Cryptographic Authentication Report</h4>
-              </div>
-
-              <span className={`px-3 py-1 rounded-xl text-xs font-mono font-black ${
-                currentVerificationReport.status === 'AUTHENTIC_VERIFIED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500' :
-                currentVerificationReport.status === 'COUNTERFEIT_DETECTED' ? 'bg-rose-950 text-rose-300 border border-rose-500 animate-pulse' :
-                'bg-amber-950 text-amber-300 border border-amber-500'
-              }`}>
-                {currentVerificationReport.status === 'AUTHENTIC_VERIFIED' ? '✓ AUTHENTIC VERIFIED' :
-                 currentVerificationReport.status === 'COUNTERFEIT_DETECTED' ? '⚠️ COUNTERFEIT DETECTED' : 'BATCH RECALL'}
-              </span>
-            </div>
-
-            <div className="space-y-2.5 font-mono text-xs">
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                <span className="text-slate-400">Drug Product Name:</span>
-                <span className="text-white font-bold">{currentVerificationReport.drugName}</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                <span className="text-slate-400">Manufacturer:</span>
-                <span className="text-slate-200">{currentVerificationReport.manufacturer}</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                  <span className="text-slate-400">Mfg Date:</span>
-                  <span className="text-slate-200">{currentVerificationReport.manufactureDate}</span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                  <span className="text-slate-400">Expiry:</span>
-                  <span className="text-slate-200">{currentVerificationReport.expiryDate}</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                <span className="text-slate-400 block">Blockchain Ledger Token:</span>
-                <span className="text-cyan-300 text-[10px] break-all block">{currentVerificationReport.blockchainHash}</span>
-              </div>
-            </div>
-
-            <div className={`p-4 rounded-2xl border text-xs leading-relaxed ${
-              currentVerificationReport.status === 'AUTHENTIC_VERIFIED'
-                ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-200'
-                : 'bg-rose-950/50 border-rose-500/40 text-rose-200'
-            }`}>
-              {currentVerificationReport.safetyNotice}
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
-      {/* =========================================================================
-          MODULE 7: ADR REPORTING & PHARMACOVIGILANCE (NOVA ADR)
+          MODULE 13: PHARMACOVIGILANCE & ADR (NOVA ADR)
           ========================================================================= */}
       {activePharmaTab === 'adr_vigilance' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left ADR Submission Form */}
           <div className="lg:col-span-5 p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-4">
             <div>
               <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
@@ -1328,10 +1719,8 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                 Submit Pharmacovigilance Report
               </button>
             </form>
-
           </div>
 
-          {/* Right Live Pharmacovigilance Audit Log */}
           <div className="lg:col-span-7 p-6 rounded-3xl bg-[#080d20] border border-slate-800 space-y-4">
             <h4 className="text-sm font-black text-white flex items-center space-x-2">
               <FileText className="w-4 h-4 text-emerald-400" />
@@ -1360,18 +1749,15 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                 </div>
               ))}
             </div>
-
           </div>
-
         </div>
       )}
 
       {/* =========================================================================
-          MODULE 8: COLD-CHAIN TELEMETRY & VACCINE STOCK (NOVA STOCK)
+          MODULE 14: COLD-CHAIN TELEMETRY (NOVA STOCK)
           ========================================================================= */}
       {activePharmaTab === 'stock_coldchain' && (
         <div className="space-y-6">
-          
           <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 space-y-2">
             <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
               NOVA STOCK • COLD-CHAIN TELEMETRY
@@ -1379,15 +1765,11 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
             <h3 className="text-lg font-black text-white">
               Live IoT Temperature Monitoring & Vaccine Storage
             </h3>
-            <p className="text-xs text-slate-400">
-              Continuous 24/7 temperature sensors for vaccines, insulins, monoclonal antibodies, and blood products with automatic excursions and expiry blockades.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {COLD_CHAIN_UNITS.map((unit) => (
               <div key={unit.unitId} className="p-5 rounded-3xl bg-[#080d20] border border-cyan-500/30 shadow-xl space-y-4">
-                
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Thermometer className="w-5 h-5 text-cyan-400" />
@@ -1426,11 +1808,9 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
                   <span>⚡ Backup Generator: Active</span>
                   <span className="text-emerald-400">{unit.timestamp}</span>
                 </div>
-
               </div>
             ))}
           </div>
-
         </div>
       )}
 

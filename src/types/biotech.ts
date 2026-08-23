@@ -419,25 +419,82 @@ export interface SequenceAnalysisResult {
    MASTER A–Z PHARMACY & DRUG UNIVERSE (NOVA PHARMA) DATA TYPES
    ========================================================================= */
 
+export type SubstanceUniverseCategory =
+  | 'OTC'
+  | 'Prescription'
+  | 'Specialist prescription'
+  | 'Hospital-only'
+  | 'Emergency medicines'
+  | 'High-alert medicines'
+  | 'Controlled medicines'
+  | 'Reproductive medicines'
+  | 'Sexual-health medicines'
+  | 'Investigational'
+  | 'Withdrawn'
+  | 'Unapproved'
+  | 'Counterfeit'
+  | 'Illicit recreational drugs'
+  | 'Performance-enhancing substances'
+  | 'Toxic chemicals'
+  | 'Veterinary medicines'
+  | 'Herbal/traditional products'
+  | 'Supplements'
+  | 'Biologics & Gene Therapies';
+
+export type VisualSafetyRiskTier =
+  | 'ROUTINE'           // 🟢 Routine
+  | 'PRESCRIPTION'      // 🔵 Prescription
+  | 'CAUTION'           // 🟡 Caution
+  | 'HIGH_ALERT'        // 🟠 High Alert
+  | 'CONTROLLED_RISK'   // 🔴 Controlled / Serious Risk
+  | 'SPECIALIST_HOSPITAL' // 🟣 Specialist / Hospital Only
+  | 'ILLICIT_TOXICOLOGY'; // ⚫ Illicit / Toxicology Record
+
 export type PharmaDosageForm = 
   | 'Tablet' | 'Capsule' | 'Syrup' | 'Suspension' | 'Solution' | 'Drops' 
-  | 'Injection (IV/IM/SC)' | 'Infusion' | 'Inhaler / MDI' | 'Nebulizer Solution' 
-  | 'Nasal Spray' | 'Eye Drops' | 'Ear Drops' | 'Cream / Ointment' | 'Gel' 
-  | 'Transdermal Patch' | 'Suppository' | 'Sublingual Tablet' | 'Vaccine' | 'Biologic / Monoclonal'
-  | 'Auto-Injector' | 'Lozenges' | 'Powders' | 'Granules' | 'Sachets' | 'Pessaries' | 'Mouthwashes' | 'Foams' | 'Sprays' | 'Implants';
+  | 'Injection (IV/IM/SC)' | 'Injection' | 'Infusion' | 'Inhaler / MDI' | 'Nebulizer Solution' 
+  | 'Nasal Spray' | 'Eye Drops' | 'Ear Drops' | 'Cream / Ointment' | 'Cream' | 'Ointment' | 'Gel' | 'Lotion' 
+  | 'Transdermal Patch' | 'Suppository' | 'Suppositories' | 'Pessaries' | 'Sublingual Tablet' | 'Vaccine' | 'Biologic / Monoclonal'
+  | 'Vaccines / Biologic Medicines' | 'Auto-Injector' | 'Lozenges' | 'Powders' | 'Granules' | 'Sachets' 
+  | 'Mouthwashes' | 'Foams' | 'Sprays' | 'Implants'
+  | 'Oral Dissolving Film / Strip' | 'Films' | 'Wafers' | 'Medicated Shampoo' | 'Enemas' | 'Dental Preparation' | 'Drug-Eluting Device';
 
 export type PharmaAdministrationRoute = 
-  | 'Oral' | 'Intravenous (IV)' | 'Intramuscular (IM)' | 'Subcutaneous (SC)' 
-  | 'Inhaled' | 'Nasal' | 'Ophthalmic' | 'Otic' | 'Topical' | 'Transdermal' 
-  | 'Rectal' | 'Sublingual / Buccal';
+  | 'Oral' 
+  | 'Intravenous (IV)' 
+  | 'Intramuscular (IM)' 
+  | 'Subcutaneous (SC)' 
+  | 'Intradermal'
+  | 'Intra-articular'
+  | 'Epidural'
+  | 'Intrathecal'
+  | 'Intraosseous'
+  | 'Inhaled' 
+  | 'Nasal' 
+  | 'Ophthalmic' 
+  | 'Otic' 
+  | 'Topical' 
+  | 'Transdermal' 
+  | 'Rectal' 
+  | 'Vaginal'
+  | 'Sublingual'
+  | 'Buccal'
+  | 'Sublingual / Buccal';
 
 export type PharmaLegalStatus = 
   | 'OTC (Over-The-Counter)' 
   | 'Prescription-Only (Rx)' 
   | 'OTC (Over-The-Counter) / Rx'
+  | 'Specialist Prescription (Oncology/Biologic)'
   | 'Controlled Substance (Schedule II/IV)' 
   | 'Hospital-Only Emergency' 
   | 'Investigational / Trial' 
+  | 'Withdrawn from Market'
+  | 'Unapproved Formulation'
+  | 'Prohibited / Illicit Substance (Schedule I)'
+  | 'WADA Prohibited Substance (Sports Doping)'
+  | 'Regulated Reproductive Health'
+  | 'Forensic Toxin / Hazard'
   | 'Orphan Drug' 
   | 'Biologic / Biosimilar';
 
@@ -449,7 +506,7 @@ export type InteractionSeverityTier =
 
 export interface DrugInteractionItem {
   targetName: string;
-  targetType: 'Drug' | 'Food' | 'Disease' | 'Lab' | 'Herbal';
+  targetType: 'Drug' | 'Food' | 'Disease' | 'Lab' | 'Herbal' | 'Alcohol';
   severity: InteractionSeverityTier;
   mechanism: string;
   clinicalAction: string;
@@ -472,13 +529,30 @@ export interface MolecularStructure3D {
   bonds: [number, number][];
 }
 
+export interface InjectionCompatibilityProfile {
+  compatibleDiluents: string[];
+  incompatibleDiluents: string[];
+  ySiteCompatibleDrugs: string[];
+  ySiteIncompatibleDrugs: string[];
+  lightProtectionRequired: boolean;
+  filterRequirement?: string; // e.g. 0.22 micron inline filter
+  maximumInfusionRate?: string;
+  vesicantOrIrritant?: 'Vesicant' | 'Irritant' | 'Neutral';
+}
+
 export interface MasterDrugRecord {
   id: string;
   genericName: string;
   brandNames: string[];
+  aliases?: string[];
+  streetNamesForensic?: string[];
+  
   alphabetLetter: string; // A to Z
   drugClass: string;
   therapeuticCategory: string;
+  substanceCategory: SubstanceUniverseCategory;
+  visualRiskTier: VisualSafetyRiskTier;
+  
   chemicalName: string;
   molecularFormula: string;
   molecularWeight: number; // g/mol
@@ -494,6 +568,7 @@ export interface MasterDrugRecord {
   relativeContraindications: string[];
   blackBoxWarnings?: string;
   
+  commonSideEffects?: string[];
   sideEffectsCommon: string[];
   sideEffectsSerious: string[];
   adverseReactionRisk: string;
@@ -508,11 +583,20 @@ export interface MasterDrugRecord {
   renalAdjustmentGFR: string;
   hepaticAdjustment: string;
 
+  // Substance Safety & Risk Attributes
+  dependencePotential?: 'Low' | 'Moderate' | 'High' | 'Severe (Physical & Psychological)' | 'None';
+  abusePotential?: 'Low' | 'Moderate' | 'High' | 'Extreme / Schedule I-II';
+  withdrawalRisk?: string;
+  overdoseRisk?: string;
+  wadaProhibitionStatus?: string; // e.g. S1 Anabolic Agents - Prohibited In and Out of Competition
+
   legalStatus: PharmaLegalStatus;
   isHighAlert: boolean;
   isColdChain: boolean;
   storageRequirement: string; // e.g. 2°C - 8°C or 15°C - 25°C
   
+  injectionProfile?: InjectionCompatibilityProfile;
+
   inventoryStock: number; // units available
   batchNumber: string;
   expiryDate: string;
@@ -521,6 +605,7 @@ export interface MasterDrugRecord {
   barcodeGS1: string;
 
   atoms3D?: MolecularStructure3D;
+  adulterationRiskNotes?: string;
 }
 
 export interface PoisoningAntidoteRecord {
