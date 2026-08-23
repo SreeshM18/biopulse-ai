@@ -14,14 +14,14 @@ export const JudgePitchBanner: React.FC<JudgePitchBannerProps> = ({
   onSelectPatient
 }) => {
   return (
-    <div className="bg-gradient-to-r from-[#090d18] via-[#0d172e] to-[#090d18] border-b border-cyan-500/30 py-2.5 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-3">
+    <div className="bg-gradient-to-r from-[#070b16] via-[#0b1428] to-[#070b16] border-b border-cyan-500/20 py-1.5 sm:py-2 px-3 sm:px-6 print:hidden">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
         
         {/* Left: Hackathon Pitch Tag */}
-        <div className="flex items-center space-x-2.5 text-xs">
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-bold shadow-glow-cyan">
-            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-            <span>NOVA Sentinel • BioPulse AI Core</span>
+        <div className="flex items-center space-x-2 shrink-0">
+          <div className="flex items-center space-x-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-bold text-[10px] sm:text-xs shadow-glow-cyan">
+            <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400" />
+            <span className="truncate">NOVA Sentinel AI</span>
           </div>
           
           <div className="hidden xl:flex items-center space-x-1 text-[11px] font-mono text-slate-400">
@@ -41,10 +41,10 @@ export const JudgePitchBanner: React.FC<JudgePitchBannerProps> = ({
           </div>
         </div>
 
-        {/* Right: Quick Case Switchers */}
-        <div className="flex items-center space-x-2 overflow-x-auto w-full lg:w-auto py-1 no-scrollbar">
-          <span className="text-slate-400 text-xs hidden sm:inline shrink-0 font-medium">
-            1-Click Load Inpatient Case:
+        {/* Right: Quick Case Switchers (Single Horizontal Scroll) */}
+        <div className="flex items-center space-x-1.5 shrink-0">
+          <span className="text-slate-400 text-[10px] sm:text-xs hidden md:inline shrink-0 font-medium">
+            Inpatient Cases:
           </span>
           {patients.map((p) => {
             const isSelected = selectedPatient.id === p.id;
@@ -54,20 +54,19 @@ export const JudgePitchBanner: React.FC<JudgePitchBannerProps> = ({
               <button
                 key={p.id}
                 onClick={() => onSelectPatient(p)}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                className={`flex items-center space-x-1.5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-cyan-500/30 via-blue-600/30 to-purple-500/30 text-white border border-cyan-400 shadow-glow-cyan font-extrabold scale-[1.02]'
-                    : 'bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/60'
+                    ? 'bg-gradient-to-r from-cyan-500/30 via-blue-600/30 to-purple-500/30 text-white border border-cyan-400 shadow-glow-cyan font-bold scale-[1.02]'
+                    : 'bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full shrink-0 ${
-                  risk === 'CRITICAL' ? 'bg-rose-400 animate-ping' :
-                  risk === 'HIGH' ? 'bg-amber-400' :
-                  risk === 'MODERATE' ? 'bg-yellow-400' : 'bg-emerald-400'
+                <div className={`w-1.5 h-1.5 rounded-full ${
+                  risk === 'CRITICAL' ? 'bg-rose-500 animate-ping' : risk === 'HIGH' ? 'bg-amber-400' : 'bg-emerald-400'
                 }`} />
-                <span>{p.name.split(' ')[0]} ({p.id.toUpperCase()})</span>
-                <span className={`text-[10px] font-mono font-bold ${
-                  risk === 'CRITICAL' ? 'text-rose-400' : 'text-slate-400'
+                <span className="font-bold">{p.name.split(' ')[0]}</span>
+                <span className="text-[9px] font-mono text-slate-400 hidden sm:inline">({p.mrn.slice(-4)})</span>
+                <span className={`text-[8px] font-mono font-bold px-1 rounded ${
+                  risk === 'CRITICAL' ? 'bg-rose-950 text-rose-300' : risk === 'HIGH' ? 'bg-amber-950 text-amber-300' : 'bg-emerald-950 text-emerald-300'
                 }`}>
                   [{risk}]
                 </span>

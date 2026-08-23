@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   Activity, 
   Heart, 
@@ -7,7 +6,9 @@ import {
   QrCode, 
   Settings as SettingsIcon,
   Menu,
-  Pill
+  Pill,
+  Sparkles,
+  User
 } from 'lucide-react';
 import { TabType } from '../types/biotech';
 
@@ -23,12 +24,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onOpenSettings
 }) => {
   const navItems: { id: TabType; label: string; icon: React.ReactNode }[] = [
-    { id: 'command_center', label: 'Command', icon: <Activity className="w-5 h-5" /> },
-    { id: 'nova_pharma', label: 'Pharma A–Z', icon: <Pill className="w-5 h-5 text-pink-400" /> },
-    { id: 'patient_monitor', label: 'Vitals', icon: <Heart className="w-5 h-5 text-rose-400" /> },
-    { id: 'nova_anatomy_twin', label: '3D Twin', icon: <Brain className="w-5 h-5 text-cyan-400" /> },
-    { id: 'nova_rescue', label: 'SOS', icon: <Flame className="w-5 h-5 text-rose-500 animate-pulse" /> },
-    { id: 'emergency_qr', label: 'QR Pass', icon: <QrCode className="w-5 h-5 text-purple-400" /> },
+    { id: 'command_center', label: 'Command', icon: <Activity className="w-4 h-4" /> },
+    { id: 'nova_careguide', label: 'CareGuide', icon: <Sparkles className="w-4 h-4 text-emerald-400" /> },
+    { id: 'nova_pharma', label: 'Pharma', icon: <Pill className="w-4 h-4 text-pink-400" /> },
+    { id: 'patient_monitor', label: 'Vitals', icon: <Heart className="w-4 h-4 text-rose-400" /> },
+    { id: 'nova_rescue', label: 'SOS', icon: <Flame className="w-4 h-4 text-rose-500 animate-pulse" /> },
+    { id: 'user_profile', label: 'Profile', icon: <User className="w-4 h-4 text-cyan-400" /> },
   ];
 
   return (

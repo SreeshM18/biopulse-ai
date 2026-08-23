@@ -188,13 +188,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* User Profile Badge & Action Buttons */}
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
             
             {/* Authenticated User Badge */}
             {currentUser && (
               <button 
                 onClick={() => setActiveTab('user_profile')}
-                className="hidden sm:flex items-center space-x-2 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 text-xs transition-all shadow-glow-cyan cursor-pointer"
+                className="hidden lg:flex items-center space-x-2 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 text-xs transition-all shadow-glow-cyan cursor-pointer"
                 title="View All 4 Role Profiles (Doctor, Patient, SOS Paramedic, Hospital)"
               >
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -205,52 +205,57 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
+            {/* Profile Button */}
             <button
               onClick={() => setActiveTab('user_profile')}
               className={`p-1.5 sm:p-2 rounded-xl text-xs font-semibold border transition-all ${
                 activeTab === 'user_profile'
                   ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold shadow-glow-cyan'
-                  : 'bg-slate-850 hover:bg-slate-800 text-cyan-300 border-slate-700'
+                  : 'bg-slate-850 hover:bg-slate-800 text-cyan-300 border-slate-750'
               }`}
               title="4-Persona Clinical Profile Hub (Doctor, Patient, SOS, Hospital)"
             >
-              <User className="w-4 h-4" />
+              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
+            {/* Admit Button */}
             <button
               onClick={onOpenRegister}
-              className="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-glow-cyan transition-all"
+              className="flex items-center space-x-1 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-glow-cyan transition-all"
             >
               <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="text-[11px] sm:text-xs">Admit</span>
+              <span className="text-[10px] sm:text-xs">Admit</span>
             </button>
 
+            {/* SOAP Button */}
             <button
               onClick={onOpenNotes}
-              className="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-700 transition-all"
+              className="flex items-center space-x-1 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-750 transition-all"
             >
               <FileCheck2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
-              <span className="text-[11px] sm:text-xs">SOAP</span>
+              <span className="text-[10px] sm:text-xs">SOAP</span>
             </button>
 
+            {/* Database Button */}
             {onOpenDatabase && (
               <button
                 onClick={onOpenDatabase}
-                className="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 shadow-glow-cyan transition-all"
+                className="p-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 shadow-glow-cyan transition-all flex items-center space-x-1"
                 title="Open Master Clinical Database Studio (Users, Patients, Billing, Appointments)"
               >
                 <Database className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Database</span>
+                <span className="hidden md:inline text-xs">Database</span>
               </button>
             )}
 
+            {/* Settings Button */}
             {onOpenSettings && (
               <button
                 onClick={onOpenSettings}
-                className="p-1.5 sm:p-2 rounded-xl text-xs font-semibold bg-slate-850 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow-glow-cyan transition-all"
+                className="p-1.5 sm:p-2 rounded-xl text-xs font-semibold bg-slate-850 hover:bg-slate-800 text-cyan-300 border border-slate-750 shadow-glow-cyan transition-all"
                 title="Settings & Mobile Phone Connect QR"
               >
-                <SettingsIcon className="w-4 h-4" />
+                <SettingsIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
 
@@ -261,7 +266,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="p-1.5 sm:p-2 rounded-xl text-xs font-semibold bg-slate-850 hover:bg-rose-950 text-slate-400 hover:text-rose-300 border border-slate-750 hover:border-rose-500/50 transition-all"
                 title="Logout & Return to Welcome Portal"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
           </div>

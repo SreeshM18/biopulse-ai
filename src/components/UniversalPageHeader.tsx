@@ -80,40 +80,34 @@ export const UniversalPageHeader: React.FC<UniversalPageHeaderProps> = ({
   };
 
   return (
-    <div className="w-full mb-5 animate-fade-in print:hidden">
-      <div className="p-3 sm:p-4 rounded-2xl bg-[#080d1e]/90 backdrop-blur-xl border border-cyan-500/30 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+    <div className="w-full mb-3 sm:mb-5 animate-fade-in print:hidden">
+      <div className="p-2 sm:p-3.5 rounded-2xl bg-[#080d1e]/90 backdrop-blur-xl border border-cyan-500/30 shadow-lg flex items-center justify-between gap-2">
         
         {/* Left: Back Button & Breadcrumbs */}
-        <div className="flex items-center space-x-3 w-full md:w-auto">
+        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           <button
             onClick={() => setActiveTab('command_center')}
-            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 hover:text-white text-xs font-bold transition-all shadow-glow-cyan shrink-0 active:scale-95"
+            className="flex items-center space-x-1 sm:space-x-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 hover:text-white text-[11px] sm:text-xs font-bold transition-all shadow-glow-cyan shrink-0 active:scale-95"
             title="Return to Main Command Center"
           >
-            <ArrowLeft className="w-4 h-4 text-cyan-400" />
-            <span>← Back to Command</span>
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+            <span className="hidden sm:inline">← Back to Command</span>
+            <span className="sm:hidden">Back</span>
           </button>
 
-          <div className="flex items-center space-x-1.5 text-xs text-slate-400 overflow-hidden">
-            <span 
-              onClick={() => setActiveTab('command_center')}
-              className="hover:text-cyan-300 cursor-pointer hidden sm:inline truncate font-mono text-[11px]"
-            >
-              Command
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-600 hidden sm:inline shrink-0" />
-            <div className="flex items-center space-x-1.5 font-bold text-white truncate">
-              {currentTabMeta.icon}
+          <div className="flex items-center space-x-1 text-xs text-slate-400 min-w-0">
+            <div className="flex items-center space-x-1 font-bold text-white truncate text-[11px] sm:text-xs">
+              <span className="shrink-0">{currentTabMeta.icon}</span>
               <span className="truncate">{currentTabMeta.title}</span>
             </div>
           </div>
         </div>
 
         {/* Right: Active Patient Context & Quick SOAP Note Action */}
-        <div className="flex items-center space-x-2 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-800">
+        <div className="flex items-center space-x-1.5 shrink-0">
           {selectedPatient && (
-            <div className="flex items-center space-x-2">
-              <div className="text-left md:text-right text-[11px] font-mono">
+            <div className="flex items-center space-x-1.5">
+              <div className="hidden sm:block text-right text-[11px] font-mono leading-tight">
                 <span className="text-slate-400 block text-[9px]">ACTIVE PATIENT</span>
                 <span className="font-bold text-cyan-300">{selectedPatient.name}</span>
                 <span className="text-slate-500 ml-1">({selectedPatient.bedLocation})</span>
@@ -122,7 +116,7 @@ export const UniversalPageHeader: React.FC<UniversalPageHeaderProps> = ({
               {onOpenPatientNotes && (
                 <button
                   onClick={onOpenPatientNotes}
-                  className="px-2.5 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 text-xs font-bold transition-all flex items-center space-x-1 shadow-glow-purple"
+                  className="px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 text-[11px] sm:text-xs font-bold transition-all flex items-center space-x-1 shadow-glow-purple"
                   title="Open Clinical SOAP Note Dossier"
                 >
                   <Stethoscope className="w-3.5 h-3.5" />
