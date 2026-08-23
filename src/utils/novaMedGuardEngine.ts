@@ -87,7 +87,6 @@ export const CANONICAL_DRUGS: CanonicalDrugLookup[] = [
   },
   {
     canonicalGenericName: 'Semaglutide',
-    brandNames: ['ozempic', 'wegovy', 'rybelsus', 'semaglutide'],
     brandAliases: ['ozempic', 'wegovy', 'rybelsus', 'semaglutide'],
     activeIngredient: 'Semaglutide',
     drugClass: 'GLP-1 Receptor Agonist',
