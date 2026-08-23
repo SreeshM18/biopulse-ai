@@ -62,12 +62,15 @@ import {
   COLD_CHAIN_UNITS 
 } from '../data/novaPharmaUniverseData';
 
+import { NovaMedSearch } from './NovaMedSearch';
+
 interface NovaPharmaUniverseProps {
   patient?: PatientProfile;
   setActiveTab?: (tab: TabType) => void;
 }
 
 type PharmaViewTab = 
+  | 'medsearch_ai'
   | 'az_browser' 
   | 'injections_universe'
   | 'reproductive_pharma'
@@ -408,9 +411,10 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
         </div>
       </div>
 
-      {/* Master Sub-Navigation Tabs Bar */}
+      {/* Navigation Sub-Tabs Across 15 Pharma Modules */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 no-scrollbar border-b border-slate-800">
         {[
+          { id: 'medsearch_ai', label: '🔍 Google-like MEDSEARCH (AI)', icon: <Search className="w-4 h-4 text-cyan-300 animate-pulse" /> },
           { id: 'az_browser', label: '1. A–Z Substance Browser', icon: <Database className="w-4 h-4 text-cyan-400" /> },
           { id: 'injections_universe', label: '2. Injections & Y-Site Matrix', icon: <Syringe className="w-4 h-4 text-emerald-400" /> },
           { id: 'reproductive_pharma', label: '3. Sexual & Reproductive', icon: <Heart className="w-4 h-4 text-pink-400" /> },
@@ -443,6 +447,18 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
           );
         })}
       </div>
+
+      {/* =========================================================================
+          MODULE 0: GOOGLE-LIKE UNIVERSAL MEDSEARCH ENGINE (FUZZY, TYPO, SYMPTOM)
+          ========================================================================= */}
+      {activePharmaTab === 'medsearch_ai' && (
+        <NovaMedSearch 
+          onSelectDrug={(drug) => {
+            setSelectedDrug(drug);
+          }}
+          setActiveTab={setActiveTab}
+        />
+      )}
 
       {/* =========================================================================
           MODULE 1: MASTER A–Z SUBSTANCE & DRUG DIRECTORY (UNIVERSAL SEARCH)
