@@ -57,9 +57,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   // Local Wi-Fi Network URL (Same Wi-Fi)
   const wifiNetworkUrl = 'http://192.168.1.4:5173/';
   
-  // Public Global HTTPS URL (Worldwide on 4G/5G/Any Wi-Fi)
-  const publicGlobalUrl = 'https://biopulse-nova.loca.lt';
-  const publicTunnelPassword = '106.200.9.118';
+  // Permanent Worldwide Global Vercel HTTPS URL (24/7 on any phone or network)
+  const publicGlobalUrl = 'https://biopulse-ai-iota.vercel.app';
 
   const currentUrl = activeShareTab === 'wifi' ? wifiNetworkUrl : publicGlobalUrl;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(currentUrl)}&bgcolor=090e1d&color=00f2fe&margin=10`;
