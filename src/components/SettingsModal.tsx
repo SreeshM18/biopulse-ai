@@ -188,7 +188,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <>
                     <div className="flex items-center space-x-2 text-[11px] font-mono text-purple-400 font-bold">
                       <Globe className="w-4 h-4 text-purple-400" />
-                      <span>Worldwide Public HTTPS Tunnel</span>
+                      <span>Permanent 24/7 Vercel Global URL</span>
                     </div>
 
                     <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 font-mono text-[11px] text-purple-300 select-all flex items-center justify-between">
@@ -202,18 +202,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </button>
                     </div>
 
-                    <div className="p-2 rounded-xl bg-purple-950/40 border border-purple-500/30 flex items-center justify-between text-[10px] font-mono">
-                      <span>Tunnel Endpoint Password: <strong className="text-white">{publicTunnelPassword}</strong></span>
-                      <button
-                        onClick={() => copyUrl(publicTunnelPassword, 'pass')}
-                        className="px-2 py-0.5 rounded bg-purple-800 text-white font-bold"
-                      >
-                        {copiedPass ? 'Copied' : 'Copy IP'}
-                      </button>
+                    <div className="p-2 rounded-xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between text-[10px] font-mono text-emerald-300">
+                      <span>✓ High-Speed Global CDN • Zero Passwords Needed</span>
                     </div>
 
                     <p className="text-[10px] text-slate-400">
-                      * When prompted on your phone's browser, paste the Tunnel Endpoint Password ({publicTunnelPassword}) to view.
+                      * Accessible worldwide on any iPhone, Android, tablet, or desktop connected to any network.
                     </p>
                   </>
                 )}
