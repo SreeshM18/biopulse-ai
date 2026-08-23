@@ -66,6 +66,7 @@ import {
 import { NovaMedSearch } from './NovaMedSearch';
 import { NovaMedGuard } from './NovaMedGuard';
 import { NovaCareGuide } from './NovaCareGuide';
+import { NovaUniversalPharmaUniverse } from './NovaUniversalPharmaUniverse';
 
 interface NovaPharmaUniverseProps {
   patient?: PatientProfile;
@@ -73,6 +74,7 @@ interface NovaPharmaUniverseProps {
 }
 
 type PharmaViewTab = 
+  | 'universal_pharma'
   | 'careguide_ai'
   | 'medsearch_ai'
   | 'az_browser' 
@@ -94,7 +96,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
   patient,
   setActiveTab
 }) => {
-  const [activePharmaTab, setActivePharmaTab] = useState<PharmaViewTab>('az_browser');
+  const [activePharmaTab, setActivePharmaTab] = useState<PharmaViewTab>('universal_pharma');
 
   // Filter States
   const [selectedLetter, setSelectedLetter] = useState<string>('All');
@@ -418,6 +420,7 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
       {/* Navigation Sub-Tabs Across 16 Pharma Modules */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 no-scrollbar border-b border-slate-800">
         {[
+          { id: 'universal_pharma', label: '💊 12 Tiers & 41 Subtypes Master', icon: <Pill className="w-4 h-4 text-cyan-300 animate-pulse" /> },
           { id: 'careguide_ai', label: '🩺 NOVA CAREGUIDE', icon: <HeartHandshake className="w-4 h-4 text-emerald-400 animate-pulse" /> },
           { id: 'medsearch_ai', label: '🔍 Google-like MEDSEARCH (AI)', icon: <Search className="w-4 h-4 text-cyan-300 animate-pulse" /> },
           { id: 'az_browser', label: '1. A–Z Substance Browser', icon: <Database className="w-4 h-4 text-cyan-400" /> },
@@ -452,6 +455,16 @@ export const NovaPharmaUniverse: React.FC<NovaPharmaUniverseProps> = ({
           );
         })}
       </div>
+
+      {/* =========================================================================
+          MODULE MASTER: NOVA UNIVERSAL PHARMA UNIVERSE (12 TIERS & 41 SUBTYPES)
+          ========================================================================= */}
+      {activePharmaTab === 'universal_pharma' && (
+        <NovaUniversalPharmaUniverse 
+          patient={patient}
+          setActiveTab={setActiveTab}
+        />
+      )}
 
       {/* =========================================================================
           MODULE 0A: NOVA CAREGUIDE ("WHAT CAN I TAKE FOR THIS?")
