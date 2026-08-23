@@ -140,33 +140,15 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
       vitalsHistory: [
         { time: 'Admit', heartRate: Number(heartRate), spo2: Number(spo2), respiratoryRate: Number(respiratoryRate), temperature: Number(temperature), systolicBp: Number(systolicBp) }
       ],
-      organTwins: [
+      clinicalNotes: [
         {
-          organName: 'Lungs & Airways',
-          healthScore: riskLevel === 'CRITICAL' ? 42 : riskLevel === 'HIGH' ? 64 : 88,
-          status: riskLevel === 'CRITICAL' ? 'SEVERE_IMPAIRMENT' : riskLevel === 'HIGH' ? 'MODERATE_DYSFUNCTION' : 'OPTIMAL',
-          biomarkers: [
-            { name: 'PaO2/FiO2', value: '240', status: 'WARN' },
-            { name: 'Dead Space Fraction', value: '0.45', status: 'WARN' }
-          ]
-        },
-        {
-          organName: 'Heart & Myocardium',
-          healthScore: riskLevel === 'CRITICAL' ? 58 : 82,
-          status: riskLevel === 'CRITICAL' ? 'MODERATE_DYSFUNCTION' : 'OPTIMAL',
-          biomarkers: [
-            { name: 'Cardiac Output', value: '4.8 L/min', status: 'NORMAL' },
-            { name: 'Troponin-I', value: '0.02 ng/mL', status: 'NORMAL' }
-          ]
-        },
-        {
-          organName: 'Kidneys & Glomeruli',
-          healthScore: 92,
-          status: 'OPTIMAL',
-          biomarkers: [
-            { name: 'eGFR', value: '88 mL/min', status: 'NORMAL' },
-            { name: 'Serum Creatinine', value: '1.0 mg/dL', status: 'NORMAL' }
-          ]
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+          author: 'Dr. Sarah Lin, MD',
+          noteType: 'SOAP',
+          subjective: `Patient ${finalName} admitted with ${primaryDiagnosis}.`,
+          objective: `Vitals: HR ${heartRate} bpm, SpO2 ${spo2}%, RR ${respiratoryRate}/min, Temp ${temperature}°C.`,
+          assessment: `${riskLevel} Risk Patient Deterioration Profile.`,
+          plan: 'Initiate continuous BioPulse AI telemetric tracking.'
         }
       ]
     };
@@ -229,7 +211,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
           </button>
         </div>
 
-        {/* Form Body (Scrollable with text-base to prevent iOS Safari auto-zoom) */}
+        {/* Form Body (Scrollable with text-base on mobile to prevent iOS Safari auto-zoom) */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
           
           {/* Patient Demographics */}
@@ -399,7 +381,7 @@ export const PatientRegistrationModal: React.FC<PatientRegistrationModalProps> =
             </div>
           </div>
 
-          {/* Actions (Sticky at base of form) */}
+          {/* Actions */}
           <div className="pt-4 border-t border-slate-800 flex items-center justify-end space-x-2">
             <button
               type="button"
