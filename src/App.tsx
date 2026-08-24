@@ -4,6 +4,7 @@ import { WelcomeSplashScreen } from './components/WelcomeSplashScreen';
 import { AuthPortal, AuthenticatedUser } from './components/AuthPortal';
 import { Navbar } from './components/Navbar';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
+import { AnimatedBackground } from './components/ui/AnimatedBackground';
 import { JudgePitchBanner } from './components/JudgePitchBanner';
 import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
 import { SettingsModal } from './components/SettingsModal';
@@ -185,8 +186,11 @@ export const App: React.FC = () => {
 
   // 3. STEP C: Main BioPulse AI / NOVA Platform (After Successful OTP Verification)
   return (
-    <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 pb-16 md:pb-0">
+    <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 pb-16 md:pb-0 relative overflow-hidden">
       
+      {/* Interactive React Bits Canvas Animated Ambient Grid */}
+      <AnimatedBackground />
+
       {/* 1. Header Navigation with 4 Access Portals Switcher & Logged In User */}
       <Navbar 
         activeTab={activeTab} 

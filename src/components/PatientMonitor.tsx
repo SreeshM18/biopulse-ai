@@ -31,6 +31,10 @@ import {
   Legend 
 } from 'recharts';
 import { PatientProfile, TabType } from '../types/biotech';
+import { SpotlightCard } from './ui/SpotlightCard';
+import { AnimatedCounter } from './ui/AnimatedCounter';
+import { ShinyBadge } from './ui/ShinyBadge';
+import { PulseHeartbeat } from './ui/PulseHeartbeat';
 
 interface PatientMonitorProps {
   patient: PatientProfile;
@@ -228,19 +232,14 @@ export const PatientMonitor: React.FC<PatientMonitorProps> = ({ patient, setActi
               <span className="text-xs text-slate-300">
                 {patient.age} y/o {patient.gender} • Blood Group: <strong className="text-white">{patient.emergencyPassport.bloodGroup}</strong>
               </span>
-              <span className={`px-2 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider border ${
-                isCritical
-                  ? 'bg-rose-950 text-rose-300 border-rose-800'
-                  : isHigh
-                  ? 'bg-amber-950 text-amber-300 border-amber-800'
-                  : 'bg-emerald-950 text-emerald-300 border-emerald-800'
-              }`}>
+              <ShinyBadge variant={isCritical ? 'rose' : isHigh ? 'amber' : 'emerald'}>
                 Triage Acuity: {patient.riskAssessment.riskLevel}
-              </span>
+              </ShinyBadge>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              {patient.name}
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center space-x-2.5">
+              <PulseHeartbeat bpm={liveVitals.heartRate} size="lg" color="text-rose-500" />
+              <span>{patient.name}</span>
             </h2>
             
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-1">
@@ -388,27 +387,27 @@ export const PatientMonitor: React.FC<PatientMonitorProps> = ({ patient, setActi
         <div className="lg:col-span-5 grid grid-cols-2 gap-3">
           
           {/* 1. Heart Rate */}
-          <div className="pro-card p-4 space-y-1">
+          <SpotlightCard glowColor="rose" className="p-4 space-y-1">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span className="flex items-center space-x-1.5 text-rose-400 font-semibold">
-                <Heart className="h-4 w-4" />
+                <PulseHeartbeat bpm={liveVitals.heartRate} size="sm" color="text-rose-500" />
                 <span>HEART RATE</span>
               </span>
               <span className="font-mono text-[10px]">BPM (60-100)</span>
             </div>
             <div className="flex items-baseline space-x-2">
               <span className="text-3xl sm:text-4xl font-black font-tabular text-white tracking-tight">
-                {liveVitals.heartRate}
+                <AnimatedCounter value={liveVitals.heartRate} />
               </span>
               <span className="text-xs font-mono text-slate-500">bpm</span>
             </div>
             <div className="text-[11px] font-mono text-slate-400 pt-1">
               Limits: 50 - 120
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 2. SpO2 */}
-          <div className="pro-card p-4 space-y-1">
+          <SpotlightCard glowColor="sky" className="p-4 space-y-1">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span className="flex items-center space-x-1.5 text-sky-400 font-semibold">
                 <Activity className="h-4 w-4" />
@@ -420,17 +419,17 @@ export const PatientMonitor: React.FC<PatientMonitorProps> = ({ patient, setActi
               <span className={`text-3xl sm:text-4xl font-black font-tabular tracking-tight ${
                 liveVitals.spo2 < 92 ? 'text-rose-400' : 'text-white'
               }`}>
-                {liveVitals.spo2}
+                <AnimatedCounter value={liveVitals.spo2} />
               </span>
               <span className="text-xs font-mono text-slate-500">%</span>
             </div>
             <div className="text-[11px] font-mono text-slate-400 pt-1">
               Limits: 90 - 100
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 3. Non-Invasive Blood Pressure (NIBP) & MAP */}
-          <div className="pro-card p-4 space-y-1 col-span-2">
+          <SpotlightCard glowColor="amber" className="p-4 space-y-1 col-span-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span className="flex items-center space-x-1.5 text-amber-400 font-semibold">
                 <Activity className="h-4 w-4" />
@@ -441,21 +440,21 @@ export const PatientMonitor: React.FC<PatientMonitorProps> = ({ patient, setActi
             <div className="flex items-baseline justify-between">
               <div className="flex items-baseline space-x-2">
                 <span className="text-3xl sm:text-4xl font-black font-tabular text-white tracking-tight">
-                  {liveVitals.systolicBp}/{liveVitals.diastolicBp}
+                  <AnimatedCounter value={liveVitals.systolicBp} />/<AnimatedCounter value={liveVitals.diastolicBp} />
                 </span>
                 <span className="text-xs font-mono text-slate-500">mmHg</span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-mono text-slate-400 block">MEAN (MAP)</span>
                 <span className="text-lg font-bold font-mono text-amber-400">
-                  {mapValue} <span className="text-xs font-normal text-slate-500">mmHg</span>
+                  <AnimatedCounter value={mapValue} /> <span className="text-xs font-normal text-slate-500">mmHg</span>
                 </span>
               </div>
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 4. Respiratory Rate */}
-          <div className="pro-card p-4 space-y-1">
+          <SpotlightCard glowColor="emerald" className="p-4 space-y-1">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span className="flex items-center space-x-1.5 text-emerald-400 font-semibold">
                 <Wind className="h-4 w-4" />
@@ -465,17 +464,17 @@ export const PatientMonitor: React.FC<PatientMonitorProps> = ({ patient, setActi
             </div>
             <div className="flex items-baseline space-x-2">
               <span className="text-3xl sm:text-4xl font-black font-tabular text-white tracking-tight">
-                {liveVitals.respiratoryRate}
+                <AnimatedCounter value={liveVitals.respiratoryRate} />
               </span>
               <span className="text-xs font-mono text-slate-500">rpm</span>
             </div>
             <div className="text-[11px] font-mono text-slate-400 pt-1">
               Limits: 10 - 28
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 5. Core Temp & NEWS2 Score */}
-          <div className="pro-card p-4 space-y-1">
+          <SpotlightCard glowColor="purple" className="p-4 space-y-1">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span className="flex items-center space-x-1.5 text-purple-400 font-semibold">
                 <Thermometer className="h-4 w-4" />
@@ -486,24 +485,18 @@ export const PatientMonitor: React.FC<PatientMonitorProps> = ({ patient, setActi
             <div className="flex items-baseline justify-between">
               <div className="flex items-baseline space-x-1">
                 <span className="text-3xl sm:text-4xl font-black font-tabular text-white tracking-tight">
-                  {liveVitals.temperature}
+                  <AnimatedCounter value={liveVitals.temperature} decimals={1} />
                 </span>
                 <span className="text-xs font-mono text-slate-500">°C</span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-mono text-slate-400 block">NEWS2</span>
-                <span className={`text-base font-bold font-mono px-2 py-0.5 rounded border ${
-                  liveVitals.news2Score >= 7 
-                    ? 'bg-rose-950 text-rose-300 border-rose-800' 
-                    : liveVitals.news2Score >= 5 
-                    ? 'bg-amber-950 text-amber-300 border-amber-800' 
-                    : 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                }`}>
+                <ShinyBadge variant={liveVitals.news2Score >= 7 ? 'rose' : liveVitals.news2Score >= 5 ? 'amber' : 'emerald'}>
                   Score {liveVitals.news2Score}
-                </span>
+                </ShinyBadge>
               </div>
             </div>
-          </div>
+          </SpotlightCard>
 
         </div>
 

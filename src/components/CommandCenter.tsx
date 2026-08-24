@@ -22,9 +22,14 @@ import {
   Layers, 
   SlidersHorizontal,
   Table as TableIcon,
-  LayoutGrid
+  LayoutGrid,
+  Radio
 } from 'lucide-react';
 import { PatientProfile, TabType } from '../types/biotech';
+import { SpotlightCard } from './ui/SpotlightCard';
+import { AnimatedCounter } from './ui/AnimatedCounter';
+import { ShinyBadge } from './ui/ShinyBadge';
+import { PulseHeartbeat } from './ui/PulseHeartbeat';
 
 interface CommandCenterProps {
   patients: PatientProfile[];
@@ -94,78 +99,88 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   return (
     <div className="space-y-5">
       
-      {/* Top Clinical KPI Metrics Strip */}
+      {/* Top Clinical KPI Metrics Strip with Motion Spotlight Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         
-        <div className="pro-card p-4">
+        <SpotlightCard glowColor="sky" className="p-4">
           <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
             <span>Total Active Census</span>
             <BedDouble className="h-4 w-4 text-sky-400" />
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-white font-tabular">{patients.length}</span>
+            <span className="text-2xl font-bold text-white font-tabular">
+              <AnimatedCounter value={patients.length} />
+            </span>
             <span className="text-xs text-slate-400 font-medium">Inpatients</span>
           </div>
-          <div className="mt-1 text-[11px] text-emerald-400 font-medium">
-            94% Total Bed Occupancy
+          <div className="mt-1 text-[11px] text-emerald-400 font-medium flex items-center space-x-1">
+            <span>94% Total Bed Occupancy</span>
           </div>
-        </div>
+        </SpotlightCard>
 
-        <div className="pro-card p-4">
+        <SpotlightCard glowColor="rose" className="p-4">
           <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
             <span>Level 1 Critical Acuity</span>
             <ShieldAlert className="h-4 w-4 text-rose-400" />
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-rose-400 font-tabular">{criticalCount}</span>
+            <span className="text-2xl font-bold text-rose-400 font-tabular">
+              <AnimatedCounter value={criticalCount} />
+            </span>
             <span className="text-xs text-slate-400 font-medium">Patients</span>
           </div>
           <div className="mt-1 text-[11px] text-rose-300/80 font-medium">
-            Immediate Physician Review
+            Immediate Review Required
           </div>
-        </div>
+        </SpotlightCard>
 
-        <div className="pro-card p-4">
+        <SpotlightCard glowColor="amber" className="p-4">
           <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
             <span>Level 2 High Acuity</span>
             <AlertTriangle className="h-4 w-4 text-amber-400" />
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-amber-400 font-tabular">{highCount}</span>
+            <span className="text-2xl font-bold text-amber-400 font-tabular">
+              <AnimatedCounter value={highCount} />
+            </span>
             <span className="text-xs text-slate-400 font-medium">Patients</span>
           </div>
           <div className="mt-1 text-[11px] text-amber-300/80 font-medium">
             Continuous Telemetry Active
           </div>
-        </div>
+        </SpotlightCard>
 
-        <div className="pro-card p-4">
+        <SpotlightCard glowColor="emerald" className="p-4">
           <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
             <span>Stable / Step-Down</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-400" />
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-emerald-400 font-tabular">{stableCount}</span>
+            <span className="text-2xl font-bold text-emerald-400 font-tabular">
+              <AnimatedCounter value={stableCount} />
+            </span>
             <span className="text-xs text-slate-400 font-medium">Patients</span>
           </div>
           <div className="mt-1 text-[11px] text-emerald-400/80 font-medium">
             Discharge Planning Ready
           </div>
-        </div>
+        </SpotlightCard>
 
-        <div className="pro-card p-4 col-span-2 lg:col-span-1">
+        <SpotlightCard glowColor="cyan" className="p-4 col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
             <span>Safety Audits (MedGuard)</span>
             <Activity className="h-4 w-4 text-sky-400" />
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-sky-400 font-tabular">100%</span>
+            <span className="text-2xl font-bold text-sky-400 font-tabular">
+              <AnimatedCounter value={100} suffix="%" />
+            </span>
             <span className="text-xs text-slate-400 font-medium">Audited</span>
           </div>
           <div className="mt-1 text-[11px] text-slate-400 font-medium">
             0 Drug Contraindications
           </div>
-        </div>
+        </SpotlightCard>
 
       </div>
 
@@ -289,14 +304,17 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/80">
-                {filteredPatients.map((patient) => {
+                {filteredPatients.map((patient, idx) => {
                   const isSelected = selectedPatient.id === patient.id;
                   const isCritical = patient.riskAssessment.riskLevel === 'CRITICAL';
                   const isHigh = patient.riskAssessment.riskLevel === 'HIGH';
 
                   return (
-                    <tr 
+                    <motion.tr 
                       key={patient.id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.15, delay: idx * 0.02 }}
                       onClick={() => onSelectPatient(patient)}
                       className={`pro-table-row cursor-pointer ${
                         isSelected ? 'bg-sky-950/30' : ''
@@ -304,8 +322,13 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                     >
                       {/* Name & MRN */}
                       <td className="py-3 px-4">
-                        <div className="font-semibold text-white text-xs">{patient.name}</div>
-                        <div className="font-mono text-[11px] text-slate-400">{patient.mrn}</div>
+                        <div className="flex items-center space-x-2">
+                          {isCritical && <PulseHeartbeat bpm={patient.vitals.heartRate} size="sm" color="text-rose-500" />}
+                          <div>
+                            <div className="font-semibold text-white text-xs">{patient.name}</div>
+                            <div className="font-mono text-[11px] text-slate-400">{patient.mrn}</div>
+                          </div>
+                        </div>
                       </td>
 
                       {/* Bed Location */}
@@ -362,15 +385,11 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
 
                       {/* Acuity Triage Badge */}
                       <td className="py-3 px-3 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
-                          isCritical
-                            ? 'bg-rose-950 text-rose-300 border-rose-800'
-                            : isHigh
-                            ? 'bg-amber-950 text-amber-300 border-amber-800'
-                            : 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                        }`}>
+                        <ShinyBadge
+                          variant={isCritical ? 'rose' : isHigh ? 'amber' : 'emerald'}
+                        >
                           {patient.riskAssessment.riskLevel}
-                        </span>
+                        </ShinyBadge>
                       </td>
 
                       {/* Quick Actions */}
@@ -398,7 +417,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                           </button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })}
               </tbody>
@@ -407,19 +426,20 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
       )}
 
-      {/* CARDS VIEW: Bedside Clinical Telemetry Cards */}
+      {/* CARDS VIEW: Bedside Clinical Telemetry Cards with Spotlight Effects */}
       {viewMode === 'cards' && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredPatients.map((patient) => {
+          {filteredPatients.map((patient, idx) => {
             const isSelected = selectedPatient.id === patient.id;
             const isCritical = patient.riskAssessment.riskLevel === 'CRITICAL';
             const isHigh = patient.riskAssessment.riskLevel === 'HIGH';
 
             return (
-              <div
+              <SpotlightCard
                 key={patient.id}
+                glowColor={isCritical ? 'rose' : isHigh ? 'amber' : 'sky'}
                 onClick={() => onSelectPatient(patient)}
-                className={`pro-card-interactive p-4 cursor-pointer space-y-3 ${
+                className={`p-4 cursor-pointer space-y-3 ${
                   isSelected ? 'border-sky-500 bg-sky-950/20' : ''
                 }`}
               >
@@ -427,6 +447,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center space-x-2">
+                      {isCritical && <PulseHeartbeat bpm={patient.vitals.heartRate} size="sm" color="text-rose-500" />}
                       <h4 className="text-sm font-bold text-white">{patient.name}</h4>
                       <span className="text-xs text-slate-400 font-medium">{patient.age}y • {patient.gender}</span>
                     </div>
@@ -437,15 +458,11 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                     <span className="font-mono text-xs font-bold text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800/60">
                       {patient.bedLocation}
                     </span>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase border ${
-                      isCritical
-                        ? 'bg-rose-950 text-rose-300 border-rose-800'
-                        : isHigh
-                        ? 'bg-amber-950 text-amber-300 border-amber-800'
-                        : 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                    }`}>
+                    <ShinyBadge
+                      variant={isCritical ? 'rose' : isHigh ? 'amber' : 'emerald'}
+                    >
                       {patient.riskAssessment.riskLevel}
-                    </span>
+                    </ShinyBadge>
                   </div>
                 </div>
 
@@ -500,7 +517,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                     <ArrowRight className="h-3 w-3" />
                   </button>
                 </div>
-              </div>
+              </SpotlightCard>
             );
           })}
         </div>
