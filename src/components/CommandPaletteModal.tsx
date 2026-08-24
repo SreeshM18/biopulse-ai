@@ -22,7 +22,8 @@ import {
   Cloud,
   Command,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Barcode
 } from 'lucide-react';
 import { FigmaIcon } from './ui/FigmaIcon';
 import { TabType, PatientProfile } from '../types/biotech';
@@ -84,6 +85,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     { id: 'nav-anatomy', category: 'Navigation', title: '3D Anatomy Digital Twin Explorer', subtitle: 'Multi-scale organ dissection and physiological telemetry overlay', icon: <Brain className="h-4 w-4 text-cyan-400" />, action: () => onSelectTab('nova_anatomy_twin') },
     { id: 'nav-alphafold', category: 'Navigation', title: 'AlphaFold 3D Molecular Viewer', subtitle: '3D protein structural exploration, pLDDT confidence metrics', icon: <Layers className="h-4 w-4 text-purple-400" />, action: () => onSelectTab('structure3d') },
     { id: 'nav-genomics', category: 'Navigation', title: 'Genomic Variant & Mutation Engine', subtitle: 'Variant pathogenicity scoring and transcript effect predictor', icon: <Dna className="h-4 w-4 text-emerald-400" />, action: () => onSelectTab('variant') },
+    { id: 'nav-zebra', category: 'Navigation', title: 'Zebra Healthcare (PPID & RFID Suite)', subtitle: 'TC52-HC laser scanner, ZD510-HC wristband printer, RTLS asset tracking', icon: <Barcode className="h-4 w-4 text-amber-400" />, action: () => onSelectTab('zebra_healthcare') },
     { id: 'nav-trauma', category: 'Navigation', title: 'Trauma Emergency SOS Dispatch', subtitle: 'Ambulance telemetry tracking, ETA countdowns, and trauma bay triage', icon: <Flame className="h-4 w-4 text-rose-500" />, action: () => onSelectTab('nova_rescue') },
 
     // Clinical & Design Actions

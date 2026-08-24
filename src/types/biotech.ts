@@ -41,7 +41,8 @@ export type TabType =
   | 'drugs'
   | 'trials'
   | 'sequence'
-  | 'health_admin';
+  | 'health_admin'
+  | 'zebra_healthcare';
 
 export type RiskLevel = 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
 

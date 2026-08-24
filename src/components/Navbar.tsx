@@ -26,7 +26,8 @@ import {
   Sparkles,
   Command,
   BedDouble,
-  Clock
+  Clock,
+  Barcode
 } from 'lucide-react';
 import { FigmaIcon } from './ui/FigmaIcon';
 import { TabType, UserPortalRole } from '../types/biotech';
@@ -99,6 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   const hospitalOpsTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
+    { id: 'zebra_healthcare', label: 'Zebra Scanner (PPID)', icon: <Barcode className="w-3.5 h-3.5 text-amber-400" /> },
     { id: 'nova_rescue', label: 'Trauma SOS Network', icon: <Flame className="w-3.5 h-3.5" /> },
     { id: 'hospital_units', label: 'Care Units & Beds', icon: <BedDouble className="w-3.5 h-3.5" /> },
     { id: 'specialists', label: 'Specialist Directory', icon: <Users className="w-3.5 h-3.5" /> },
