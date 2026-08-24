@@ -24,6 +24,7 @@ import {
   ArrowRight,
   Sparkles
 } from 'lucide-react';
+import { FigmaIcon } from './ui/FigmaIcon';
 import { TabType, PatientProfile } from '../types/biotech';
 
 interface CommandPaletteModalProps {
@@ -35,6 +36,7 @@ interface CommandPaletteModalProps {
   onOpenRegister?: () => void;
   onOpenNotes?: () => void;
   onOpenDatabase?: () => void;
+  onOpenFigma?: () => void;
 }
 
 interface CommandItem {
@@ -54,7 +56,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   patients,
   onOpenRegister,
   onOpenNotes,
-  onOpenDatabase
+  onOpenDatabase,
+  onOpenFigma
 }) => {
   const [search, setSearch] = useState<string>('');
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -82,7 +85,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     { id: 'nav-genomics', category: 'Navigation', title: 'Genomic Variant & Mutation Engine', subtitle: 'Variant pathogenicity scoring and transcript effect predictor', icon: <Dna className="h-4 w-4 text-emerald-400" />, action: () => onSelectTab('variant') },
     { id: 'nav-trauma', category: 'Navigation', title: 'Trauma Emergency SOS Dispatch', subtitle: 'Ambulance telemetry tracking, ETA countdowns, and trauma bay triage', icon: <Flame className="h-4 w-4 text-rose-500" />, action: () => onSelectTab('nova_rescue') },
 
-    // Clinical Actions
+    // Clinical & Design Actions
+    { id: 'act-figma', category: 'Clinical Actions', title: 'Connect Figma & Google Stitch Design System', subtitle: 'Sync live design tokens, preview Figma canvas, and generate React code', icon: <FigmaIcon className="h-4 w-4" />, action: () => onOpenFigma?.() },
     { id: 'act-admit', category: 'Clinical Actions', title: '+ Admit New Inpatient', subtitle: 'Open multi-parameter patient registration wizard', icon: <UserPlus className="h-4 w-4 text-sky-400" />, action: () => onOpenRegister?.() },
     { id: 'act-soap', category: 'Clinical Actions', title: 'Write & Sign Clinical SOAP Note', subtitle: 'Create Subjective, Objective, Assessment, and Plan note', icon: <FileText className="h-4 w-4 text-emerald-400" />, action: () => onOpenNotes?.() },
     { id: 'act-db', category: 'Clinical Actions', title: 'Open Clinical Database Studio', subtitle: 'Inspect PostgreSQL tables and sync with Supabase Cloud', icon: <Database className="h-4 w-4 text-cyan-400" />, action: () => onOpenDatabase?.() },

@@ -28,6 +28,7 @@ import {
   BedDouble,
   Clock
 } from 'lucide-react';
+import { FigmaIcon } from './ui/FigmaIcon';
 import { TabType, UserPortalRole } from '../types/biotech';
 import { AuthenticatedUser } from './AuthPortal';
 import { supabaseManager } from '../services/supabaseClient';
@@ -44,6 +45,7 @@ interface NavbarProps {
   onOpenSettings?: () => void;
   onOpenDatabase?: () => void;
   onOpenCommandPalette?: () => void;
+  onOpenFigma?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
@@ -57,7 +59,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenRegister, 
   onOpenSettings, 
   onOpenDatabase,
-  onOpenCommandPalette
+  onOpenCommandPalette,
+  onOpenFigma
 }) => {
   const [navCategory, setNavCategory] = useState<'clinical' | 'diagnostics' | 'hospital'>('clinical');
   const [facilityName, setFacilityName] = useState<string>('St. Jude Health System • Boston Main Campus');
@@ -189,6 +192,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="hidden xl:inline text-[11px] font-mono">Database</span>
                 </>
               )}
+            </button>
+          )}
+
+          {/* Figma / Stitch Design Bridge */}
+          {onOpenFigma && (
+            <button
+              onClick={onOpenFigma}
+              className="flex items-center space-x-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-850 hover:text-white transition-all"
+              title="Open Figma & Stitch Design System Bridge"
+            >
+              <FigmaIcon className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline text-[11px] font-mono">Figma / Stitch</span>
             </button>
           )}
 

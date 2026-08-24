@@ -4,6 +4,7 @@ import { WelcomeSplashScreen } from './components/WelcomeSplashScreen';
 import { AuthPortal, AuthenticatedUser } from './components/AuthPortal';
 import { Navbar } from './components/Navbar';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
+import { FigmaDesignSyncModal } from './components/FigmaDesignSyncModal';
 import { AnimatedBackground } from './components/ui/AnimatedBackground';
 import { JudgePitchBanner } from './components/JudgePitchBanner';
 import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
@@ -66,6 +67,7 @@ export const App: React.FC = () => {
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isDatabaseOpen, setIsDatabaseOpen] = useState<boolean>(false);
+  const [isFigmaOpen, setIsFigmaOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [deviceMode, setDeviceMode] = useState<ViewportDeviceMode>('responsive');
   const [autoDetectDevice, setAutoDetectDevice] = useState<boolean>(true);
@@ -204,6 +206,7 @@ export const App: React.FC = () => {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenDatabase={() => setIsDatabaseOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenFigma={() => setIsFigmaOpen(true)}
       />
 
       {/* 2. Top Judge Pitch Showcase Banner */}
@@ -429,6 +432,7 @@ export const App: React.FC = () => {
       </MultiDeviceViewportSimulator>
 
       {/* 4. Global Spotlight Command Palette Modal (Ctrl+K / Cmd+K) */}
+      {/* 4. Global Spotlight Command Palette (Ctrl+K) */}
       <CommandPaletteModal
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
@@ -438,6 +442,7 @@ export const App: React.FC = () => {
         onOpenRegister={() => setIsRegisterOpen(true)}
         onOpenNotes={() => setIsNotesOpen(true)}
         onOpenDatabase={() => setIsDatabaseOpen(true)}
+        onOpenFigma={() => setIsFigmaOpen(true)}
       />
 
       {/* 5. Native Mobile Bottom Navigation Bar */}
@@ -461,7 +466,7 @@ export const App: React.FC = () => {
         onAddPatient={handleAddPatient}
       />
 
-      {/* 7. Settings & Mobile Connect QR Modal */}
+      {/* 8. Settings & Mobile Connect QR Modal */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
@@ -473,7 +478,7 @@ export const App: React.FC = () => {
         setAutoDetectDevice={setAutoDetectDevice}
       />
 
-      {/* 8. Master Persistent Clinical Database Studio Modal */}
+      {/* 9. Master Persistent Clinical Database Studio Modal */}
       <DatabaseAdminModal
         isOpen={isDatabaseOpen}
         onClose={() => setIsDatabaseOpen(false)}
@@ -485,6 +490,12 @@ export const App: React.FC = () => {
             if (updated) setSelectedPatient(updated);
           }
         }}
+      />
+
+      {/* 10. Figma & Google Stitch Design System Synchronizer Modal */}
+      <FigmaDesignSyncModal
+        isOpen={isFigmaOpen}
+        onClose={() => setIsFigmaOpen(false)}
       />
 
       {/* 8. Footer (Hidden on mobile to save vertical space) */}
