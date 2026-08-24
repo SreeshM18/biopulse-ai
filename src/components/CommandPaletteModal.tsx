@@ -73,6 +73,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
 
   const allItems: CommandItem[] = [
     // Navigation Modules
+    { id: 'nav-healthadmin', category: 'Navigation', title: 'Health Admin & Operations Console', subtitle: 'Ward stability trends, live triage distribution, OR calendar & radar performance', icon: <Activity className="h-4 w-4 text-cyan-400" />, action: () => onSelectTab('health_admin') },
     { id: 'nav-census', category: 'Navigation', title: 'Hospital Census & Triage Hub', subtitle: 'View inpatient census, bed occupancy, and NEWS2 acuity levels', icon: <Activity className="h-4 w-4 text-sky-400" />, action: () => onSelectTab('command_center') },
     { id: 'nav-telemetry', category: 'Navigation', title: 'Bedside Telemetry & Vitals Monitor', subtitle: 'Real-time Lead II ECG, SpO2 plethysmography, and trends', icon: <Heart className="h-4 w-4 text-rose-400" />, action: () => onSelectTab('patient_monitor') },
     { id: 'nav-physician', category: 'Navigation', title: 'Physician Workstation & SOAP Notes', subtitle: 'Multi-organ physiological evaluation and clinical documentation', icon: <Stethoscope className="h-4 w-4 text-sky-400" />, action: () => onSelectTab('whole_body') },

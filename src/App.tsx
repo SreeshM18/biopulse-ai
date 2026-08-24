@@ -36,6 +36,7 @@ import { AlertsManager } from './components/AlertsManager';
 import { ClinicalNotesModal } from './components/ClinicalNotesModal';
 import { PatientRegistrationModal } from './components/PatientRegistrationModal';
 import { DatabaseAdminModal } from './components/DatabaseAdminModal';
+import { HealthAdminDashboard } from './components/HealthAdminDashboard';
 import { UserProfileHub } from './components/UserProfileHub';
 import { LogoutScreen } from './components/LogoutScreen';
 import { clinicalDb } from './services/clinicalDatabaseService';
@@ -266,6 +267,15 @@ export const App: React.FC = () => {
               onSelectPatient={setSelectedPatient}
               setActiveTab={setActiveTab}
               onOpenRegister={() => setIsRegisterOpen(true)}
+            />
+          )}
+
+          {activeTab === 'health_admin' && (
+            <HealthAdminDashboard
+              patients={patients}
+              selectedPatient={selectedPatient}
+              onSelectPatient={setSelectedPatient}
+              setActiveTab={setActiveTab}
             />
           )}
 

@@ -80,6 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const clinicalTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'command_center', label: 'Census & Triage', icon: <Activity className="w-3.5 h-3.5" /> },
+    { id: 'health_admin', label: 'Health Admin', icon: <Activity className="w-3.5 h-3.5 text-cyan-400" /> },
     { id: 'patient_monitor', label: 'Bedside Vitals', icon: <Heart className="w-3.5 h-3.5" /> },
     { id: 'whole_body', label: 'Physician Workstation', icon: <Stethoscope className="w-3.5 h-3.5" /> },
     { id: 'nurse_emar', label: 'Nurse eMAR', icon: <Users className="w-3.5 h-3.5" /> },

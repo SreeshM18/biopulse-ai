@@ -40,7 +40,8 @@ export type TabType =
   | 'variant'
   | 'drugs'
   | 'trials'
-  | 'sequence';
+  | 'sequence'
+  | 'health_admin';
 
 export type RiskLevel = 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
 
