@@ -27,6 +27,11 @@ import {
   ReferenceLine
 } from 'recharts';
 import { PatientProfile, RiskLevel } from '../types/biotech';
+import { NeuralOrb } from './ui/NeuralOrb';
+import { ConstellationGraph } from './ui/ConstellationGraph';
+import { SpotlightCard } from './ui/SpotlightCard';
+import { AnimatedCounter } from './ui/AnimatedCounter';
+import { ShinyBadge } from './ui/ShinyBadge';
 
 interface XAIRiskPredictorProps {
   patient: PatientProfile;
@@ -175,17 +180,46 @@ export const XAIRiskPredictor: React.FC<XAIRiskPredictorProps> = ({ patient }) =
       {/* Main Grid: Risk Gauge & SHAP Waterfall */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left 4 Cols: Dynamic Risk Score Gauge */}
+        {/* Left 4 Cols: Dynamic Risk Score Gauge with Neural Plasma Orb */}
         <div className="lg:col-span-4 space-y-4">
           
-          <div className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4 text-center">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-              Continuous Predicted Deterioration Risk
-            </span>
+          <SpotlightCard 
+            glowColor={
+              dynamicRisk.level === 'CRITICAL' ? 'rose' :
+              dynamicRisk.level === 'HIGH' ? 'amber' :
+              dynamicRisk.level === 'MODERATE' ? 'amber' : 'emerald'
+            }
+            className="p-6 space-y-4 text-center"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                Continuous Predicted Risk
+              </span>
+              <ShinyBadge 
+                variant={
+                  dynamicRisk.level === 'CRITICAL' ? 'rose' :
+                  dynamicRisk.level === 'HIGH' ? 'amber' : 'emerald'
+                }
+              >
+                {dynamicRisk.level}
+              </ShinyBadge>
+            </div>
 
-            {/* Large Gauge */}
-            <div className="relative w-44 h-44 mx-auto flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            {/* Neural Plasma Orb Behind Gauge */}
+            <div className="relative w-48 h-48 mx-auto flex items-center justify-center my-2">
+              <div className="absolute inset-0 flex items-center justify-center opacity-40 -z-0">
+                <NeuralOrb 
+                  size="md" 
+                  glowColor={
+                    dynamicRisk.level === 'CRITICAL' ? 'rose' :
+                    dynamicRisk.level === 'HIGH' ? 'purple' :
+                    dynamicRisk.level === 'MODERATE' ? 'purple' : 'emerald'
+                  } 
+                />
+              </div>
+
+              {/* Large Gauge */}
+              <svg className="w-full h-full transform -rotate-90 relative z-10" viewBox="0 0 100 100">
                 <circle
                   cx="50"
                   cy="50"
@@ -211,11 +245,11 @@ export const XAIRiskPredictor: React.FC<XAIRiskPredictorProps> = ({ patient }) =
                 />
               </svg>
 
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
                 <span className="text-4xl font-black font-mono text-white tracking-tight">
-                  {dynamicRisk.score}%
+                  <AnimatedCounter value={dynamicRisk.score} suffix="%" />
                 </span>
-                <span className={`text-xs font-extrabold uppercase mt-1 px-2.5 py-0.5 rounded-full ${
+                <span className={`text-[10px] font-extrabold uppercase mt-1 px-2.5 py-0.5 rounded-full ${
                   dynamicRisk.level === 'CRITICAL' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/50 animate-pulse' :
                   dynamicRisk.level === 'HIGH' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' :
                   dynamicRisk.level === 'MODERATE' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/40' :
@@ -244,7 +278,7 @@ export const XAIRiskPredictor: React.FC<XAIRiskPredictorProps> = ({ patient }) =
               </div>
             </div>
 
-          </div>
+          </SpotlightCard>
 
           {/* Model Trust Metrics */}
           <div className="glass-card rounded-2xl p-4 border border-slate-800 space-y-2">
@@ -266,6 +300,23 @@ export const XAIRiskPredictor: React.FC<XAIRiskPredictorProps> = ({ patient }) =
                 <span className="text-slate-400">Explainability Algorithm</span>
                 <span className="font-bold text-purple-300">TreeSHAP (Exact)</span>
               </div>
+            </div>
+          </div>
+
+          {/* Neural Feature Interaction Constellation Graph */}
+          <div className="glass-card rounded-2xl p-4 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400 uppercase flex items-center space-x-1.5">
+                <Brain className="w-3.5 h-3.5 text-purple-400" />
+                <span>Neural Feature Interplay</span>
+              </span>
+              <ShinyBadge variant="cyan">Interactive</ShinyBadge>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Move cursor over graph to inspect cross-organ neural connections.
+            </p>
+            <div className="h-40 rounded-xl overflow-hidden bg-slate-950/80 border border-slate-800/80 relative">
+              <ConstellationGraph nodeCount={24} maxDistance={90} />
             </div>
           </div>
 

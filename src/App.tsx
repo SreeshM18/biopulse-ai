@@ -6,6 +6,7 @@ import { Navbar } from './components/Navbar';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { FigmaDesignSyncModal } from './components/FigmaDesignSyncModal';
 import { AnimatedBackground } from './components/ui/AnimatedBackground';
+import { SquaresBackground } from './components/ui/SquaresBackground';
 import { JudgePitchBanner } from './components/JudgePitchBanner';
 import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
 import { SettingsModal } from './components/SettingsModal';
@@ -190,8 +191,8 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 pb-16 md:pb-0 relative overflow-hidden">
       
-      {/* Interactive React Bits Canvas Animated Ambient Grid */}
-      <AnimatedBackground />
+      {/* React Bits Squares Terminal Interactive Canvas Background */}
+      <SquaresBackground squareSize={48} speed={0.4} />
 
       {/* 1. Header Navigation with 4 Access Portals Switcher & Logged In User */}
       <Navbar 
