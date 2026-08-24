@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { WelcomeSplashScreen } from './components/WelcomeSplashScreen';
 import { AuthPortal, AuthenticatedUser } from './components/AuthPortal';
 import { Navbar } from './components/Navbar';
+import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { JudgePitchBanner } from './components/JudgePitchBanner';
 import { MultiDeviceViewportSimulator, ViewportDeviceMode } from './components/MultiDeviceViewportSimulator';
 import { SettingsModal } from './components/SettingsModal';
@@ -63,8 +65,36 @@ export const App: React.FC = () => {
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isDatabaseOpen, setIsDatabaseOpen] = useState<boolean>(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [deviceMode, setDeviceMode] = useState<ViewportDeviceMode>('responsive');
   const [autoDetectDevice, setAutoDetectDevice] = useState<boolean>(true);
+
+  // Global Spotlight Command Palette Shortcut (Ctrl+K / Cmd+K)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
+  // Supabase Cloud Realtime Channel Listener
+  useEffect(() => {
+    if (clinicalDb.isSupabaseConfigured()) {
+      const unsub = clinicalDb.setupRealtimeSync((table) => {
+        if (table === 'patients') {
+          const fresh = clinicalDb.getPatients();
+          setPatients(fresh);
+        }
+      });
+      return () => {
+        if (unsub) unsub();
+      };
+    }
+  }, []);
 
   // When 5-second welcome screen finishes
   const handleWelcomeComplete = () => {
@@ -169,6 +199,7 @@ export const App: React.FC = () => {
         onOpenRegister={() => setIsRegisterOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenDatabase={() => setIsDatabaseOpen(true)}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
 
       {/* 2. Top Judge Pitch Showcase Banner */}
@@ -198,18 +229,27 @@ export const App: React.FC = () => {
             onOpenPatientNotes={() => setIsNotesOpen(true)}
           />
 
-          {/* === SECTION A: 4 ACCESS PORTALS & CLINICAL CORE === */}
-          {activeTab === 'user_profile' && (
-            <UserProfileHub 
-              currentUser={currentUser}
-              activeRole={activeRole}
-              setActiveRole={setActiveRole}
-              patient={selectedPatient}
-              setActiveTab={setActiveTab}
-              onOpenDatabase={() => setIsDatabaseOpen(true)}
-              onOpenRegister={() => setIsRegisterOpen(true)}
-            />
-          )}
+          {/* Smooth 60fps Motion Animated Tab Transitions */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            >
+              {/* === SECTION A: 4 ACCESS PORTALS & CLINICAL CORE === */}
+              {activeTab === 'user_profile' && (
+                <UserProfileHub 
+                  currentUser={currentUser}
+                  activeRole={activeRole}
+                  setActiveRole={setActiveRole}
+                  patient={selectedPatient}
+                  setActiveTab={setActiveTab}
+                  onOpenDatabase={() => setIsDatabaseOpen(true)}
+                  onOpenRegister={() => setIsRegisterOpen(true)}
+                />
+              )}
 
           {activeTab === 'command_center' && (
             <CommandCenter 
@@ -378,24 +418,39 @@ export const App: React.FC = () => {
             <SequenceScanner />
           )}
 
+            </motion.div>
+          </AnimatePresence>
+
         </main>
       </MultiDeviceViewportSimulator>
 
-      {/* 4. Native Mobile Bottom Navigation Bar */}
+      {/* 4. Global Spotlight Command Palette Modal (Ctrl+K / Cmd+K) */}
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectTab={setActiveTab}
+        onSelectPatient={setSelectedPatient}
+        patients={patients}
+        onOpenRegister={() => setIsRegisterOpen(true)}
+        onOpenNotes={() => setIsNotesOpen(true)}
+        onOpenDatabase={() => setIsDatabaseOpen(true)}
+      />
+
+      {/* 5. Native Mobile Bottom Navigation Bar */}
       <MobileBottomNav 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* 5. Automated Clinical SOAP Notes Modal */}
+      {/* 6. Automated Clinical SOAP Notes Modal */}
       <ClinicalNotesModal 
         isOpen={isNotesOpen} 
         onClose={() => setIsNotesOpen(false)} 
         patient={selectedPatient} 
       />
 
-      {/* 6. Patient Admission Modal */}
+      {/* 7. Patient Admission Modal */}
       <PatientRegistrationModal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}

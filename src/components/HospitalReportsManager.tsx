@@ -12,9 +12,12 @@ import {
   Image as ImageIcon, 
   Calendar, 
   User, 
-  FilePlus2,
-  Sparkles,
-  Zap
+  FilePlus2, 
+  Sparkles, 
+  Search,
+  Filter,
+  Download,
+  Check
 } from 'lucide-react';
 import { PatientProfile, MedicalReport, PrescriptionRecord } from '../types/biotech';
 import { INITIAL_MEDICAL_REPORTS } from '../data/hospitalReports';
@@ -30,6 +33,8 @@ export const HospitalReportsManager: React.FC<HospitalReportsManagerProps> = ({
 }) => {
   const [reports, setReports] = useState<MedicalReport[]>(INITIAL_MEDICAL_REPORTS);
   const [selectedReport, setSelectedReport] = useState<MedicalReport | null>(INITIAL_MEDICAL_REPORTS[0]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   
   // Upload Report Modal
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -47,6 +52,15 @@ export const HospitalReportsManager: React.FC<HospitalReportsManagerProps> = ({
   const [rxFrequency, setRxFrequency] = useState<string>('IV Infusion over 30 mins');
   const [rxHospital, setRxHospital] = useState<string>('Memorial Central Hospital');
   const [rxDoctor, setRxDoctor] = useState<string>('Dr. Sarah Lin, MD');
+
+  const filteredReports = reports.filter(r => {
+    const matchesCat = categoryFilter === 'All' || r.category === categoryFilter;
+    const matchesSearch = 
+      r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.hospitalDepartment.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.findings.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
 
   const handleUploadReport = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,205 +107,74 @@ export const HospitalReportsManager: React.FC<HospitalReportsManagerProps> = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       
-      {/* Top Banner */}
-      <div className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      {/* Header */}
+      <div className="pro-card p-5 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center space-x-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-mono font-bold bg-purple-950 text-purple-300 border border-purple-500/30">
-                Hospital & Diagnostic Lab Portal
+              <span className="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-sky-950 text-sky-400 border border-sky-800">
+                DICOM / PACS Diagnostic Imaging & Labs
               </span>
-              <span className="text-xs font-mono text-cyan-300 font-bold">
-                ABDM & PACS DICOM Cloud Connected
+              <span className="text-xs font-mono text-slate-400">
+                Patient: <strong className="text-white">{patient.name}</strong> ({patient.mrn})
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center space-x-2">
-              <Building2 className="w-6 h-6 text-purple-400" />
-              <span>Diagnostic Imaging, Lab Reports & Prescription Issuance</span>
+            <h2 className="text-xl font-bold text-white tracking-tight flex items-center space-x-2">
+              <FileText className="h-5 w-5 text-sky-400" />
+              <span>Diagnostic Imaging (DICOM) & Pathology Reports</span>
             </h2>
-            <p className="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
-              Hospital radiology PACS, pathology lab uploads, and digital prescription issuance for <strong>{patient.name}</strong> ({patient.bedLocation}).
+            <p className="text-xs text-slate-400 mt-0.5">
+              Integrated radiological PACS imaging, CT/MRI series, pathology biopsies, and AI diagnostic impression summaries.
             </p>
           </div>
 
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsUploading(true)}
-              className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-glow-purple transition-all"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition-colors"
             >
-              <UploadCloud className="w-4 h-4" />
-              <span>+ Upload X-Ray / Lab Report</span>
+              <UploadCloud className="h-3.5 w-3.5" />
+              <span>Upload Report / DICOM</span>
             </button>
 
             <button
               onClick={() => setIsPrescribing(true)}
-              className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-glow-cyan transition-all"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-200 text-xs font-medium transition-colors"
             >
-              <Pill className="w-4 h-4" />
-              <span>+ Issue New Prescription</span>
+              <Pill className="h-3.5 w-3.5 text-sky-400" />
+              <span>Order Prescription</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Reports List + Detailed Viewer */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left 5 Cols: Reports List */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-white flex items-center space-x-2">
-                <FileText className="w-4 h-4 text-purple-400" />
-                <span>Diagnostic & Imaging Feed</span>
-              </h3>
-              <span className="text-xs font-mono text-slate-400">
-                {reports.length} Reports
-              </span>
-            </div>
-
-            <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1 no-scrollbar">
-              {reports.map((rep) => {
-                const isSelected = selectedReport?.id === rep.id;
-                return (
-                  <div
-                    key={rep.id}
-                    onClick={() => setSelectedReport(rep)}
-                    className={`p-4 rounded-2xl cursor-pointer border transition-all ${
-                      isSelected
-                        ? 'bg-slate-900 border-purple-400 shadow-glow-purple'
-                        : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <div>
-                        <span className="text-[10px] font-mono text-purple-300 font-bold uppercase block">
-                          {rep.category}
-                        </span>
-                        <h4 className="text-xs sm:text-sm font-extrabold text-white">
-                          {rep.title}
-                        </h4>
-                      </div>
-
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        rep.status === 'Critical Alert' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
-                        rep.status === 'Abnormal' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' :
-                        'bg-emerald-500/20 text-emerald-300'
-                      }`}>
-                        {rep.status}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-2 border-t border-slate-800">
-                      <span>{rep.hospitalDepartment}</span>
-                      <span>{rep.timestamp}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Right 7 Cols: Detailed Report Preview & AI Impression */}
-        <div className="lg:col-span-7 space-y-4">
-          {selectedReport ? (
-            <div className="glass-card rounded-2xl p-6 border border-slate-800 space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
-                <div>
-                  <span className="text-xs font-mono text-cyan-300 font-bold">{selectedReport.category}</span>
-                  <h3 className="text-lg font-black text-white">{selectedReport.title}</h3>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Uploaded by {selectedReport.uploadedBy} • {selectedReport.timestamp}
-                  </span>
-                </div>
-
-                <span className={`self-start sm:self-auto px-3 py-1 rounded-xl text-xs font-extrabold border ${
-                  selectedReport.status === 'Critical Alert' ? 'bg-rose-500/20 text-rose-300 border-rose-500/50' :
-                  selectedReport.status === 'Abnormal' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
-                  'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                }`}>
-                  {selectedReport.status}
-                </span>
-              </div>
-
-              {/* Image Preview if Available */}
-              {selectedReport.previewImageUrl && (
-                <div className="relative h-60 w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
-                  <img
-                    src={selectedReport.previewImageUrl}
-                    alt={selectedReport.title}
-                    className="w-full h-full object-cover opacity-80"
-                  />
-                  <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[11px] font-mono text-cyan-300 border border-cyan-500/30">
-                    PACS DICOM High-Resolution Radiology Viewer
-                  </div>
-                </div>
-              )}
-
-              {/* Findings Section */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                  Radiologist / Pathologist Clinical Findings:
-                </span>
-                <p className="text-xs text-slate-200 bg-slate-950/80 p-4 rounded-xl border border-slate-800 leading-relaxed font-mono">
-                  {selectedReport.findings}
-                </p>
-              </div>
-
-              {/* AI Diagnostic Impression */}
-              <div className="p-4 rounded-xl bg-purple-950/20 border border-purple-500/40 space-y-1.5">
-                <div className="flex items-center space-x-2 text-purple-300 font-bold text-xs">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span>AI Computer-Vision & Diagnostic Inference:</span>
-                </div>
-                <p className="text-xs text-slate-200 leading-relaxed">
-                  {selectedReport.aiImpression}
-                </p>
-              </div>
-
-            </div>
-          ) : (
-            <div className="glass-card rounded-2xl p-12 text-center text-slate-400">
-              Select a report from the left to view details.
-            </div>
-          )}
-        </div>
-
-      </div>
-
-      {/* Upload Report Modal */}
+      {/* Upload Diagnostic Modal */}
       {isUploading && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#090e1d] border border-purple-500/40 rounded-3xl p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-extrabold text-white flex items-center space-x-2">
-                <UploadCloud className="w-4 h-4 text-purple-400" />
-                <span>Upload Diagnostic Imaging / Lab Report</span>
-              </h4>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="pro-card p-5 max-w-lg w-full space-y-4 border-slate-700 bg-slate-900 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-white">Upload Diagnostic Study / PACS Imaging</h3>
               <button onClick={() => setIsUploading(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
-
-            <form onSubmit={handleUploadReport} className="space-y-3">
+            <form onSubmit={handleUploadReport} className="space-y-3 text-xs">
               <div>
-                <label className="text-[11px] font-bold text-slate-400 uppercase">Report Title</label>
+                <label className="block text-slate-300 font-medium mb-1">Study Title</label>
                 <input
                   type="text"
                   value={repTitle}
                   onChange={(e) => setRepTitle(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none focus:border-sky-500"
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase">Category</label>
+                  <label className="block text-slate-300 font-medium mb-1">Modality / Category</label>
                   <select
                     value={repCategory}
                     onChange={(e) => setRepCategory(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none"
                   >
                     <option value="X-Ray Imaging">X-Ray Imaging</option>
                     <option value="CT Scan">CT Scan</option>
@@ -300,54 +183,47 @@ export const HospitalReportsManager: React.FC<HospitalReportsManagerProps> = ({
                     <option value="Pathology / Biopsy">Pathology / Biopsy</option>
                   </select>
                 </div>
-
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase">Status</label>
-                  <select
-                    value={repStatus}
-                    onChange={(e) => setRepStatus(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                  >
-                    <option value="Critical Alert">Critical Alert</option>
-                    <option value="Abnormal">Abnormal</option>
-                    <option value="Normal / Verified">Normal / Verified</option>
-                  </select>
+                  <label className="block text-slate-300 font-medium mb-1">Hospital Department</label>
+                  <input
+                    type="text"
+                    value={repDepartment}
+                    onChange={(e) => setRepDepartment(e.target.value)}
+                    className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none"
+                  />
                 </div>
               </div>
-
               <div>
-                <label className="text-[11px] font-bold text-slate-400 uppercase">Clinical Findings</label>
+                <label className="block text-slate-300 font-medium mb-1">Radiologist Clinical Findings</label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={repFindings}
                   onChange={(e) => setRepFindings(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none resize-none"
                 />
               </div>
-
               <div>
-                <label className="text-[11px] font-bold text-slate-400 uppercase">AI Diagnostic Impression</label>
-                <input
-                  type="text"
+                <label className="block text-slate-300 font-medium mb-1">AI Diagnostic Impression</label>
+                <textarea
+                  rows={2}
                   value={repAiImpression}
                   onChange={(e) => setRepAiImpression(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none resize-none"
                 />
               </div>
-
-              <div className="pt-2 flex justify-end space-x-2">
+              <div className="flex items-center justify-end space-x-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsUploading(false)}
-                  className="px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-300"
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-glow-purple"
+                  className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold"
                 >
-                  Save & Publish to Patient EHR
+                  Upload Study
                 </button>
               </div>
             </form>
@@ -355,83 +231,218 @@ export const HospitalReportsManager: React.FC<HospitalReportsManagerProps> = ({
         </div>
       )}
 
-      {/* Issue Prescription Modal */}
+      {/* Order Prescription Modal */}
       {isPrescribing && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#090e1d] border border-emerald-500/40 rounded-3xl p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-extrabold text-white flex items-center space-x-2">
-                <Pill className="w-4 h-4 text-emerald-400" />
-                <span>Issue Digitally-Signed Prescription</span>
-              </h4>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="pro-card p-5 max-w-md w-full space-y-4 border-slate-700 bg-slate-900 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-white">Order Hospital Medication Regimen</h3>
               <button onClick={() => setIsPrescribing(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
-
-            <form onSubmit={handleIssueRx} className="space-y-3">
+            <form onSubmit={handleIssueRx} className="space-y-3 text-xs">
               <div>
-                <label className="text-[11px] font-bold text-slate-400 uppercase">Medication Name & Route</label>
+                <label className="block text-slate-300 font-medium mb-1">Drug Name & Generic</label>
                 <input
                   type="text"
                   value={rxDrug}
                   onChange={(e) => setRxDrug(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none focus:border-sky-500"
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase">Dosage</label>
+                  <label className="block text-slate-300 font-medium mb-1">Dosage</label>
                   <input
                     type="text"
                     value={rxDosage}
                     onChange={(e) => setRxDosage(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase">Frequency</label>
+                  <label className="block text-slate-300 font-medium mb-1">Frequency / Route</label>
                   <input
                     type="text"
                     value={rxFrequency}
                     onChange={(e) => setRxFrequency(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    className="w-full rounded-lg bg-slate-950 border border-slate-800 p-2 text-white outline-none"
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="text-[11px] font-bold text-slate-400 uppercase">Prescribing Hospital</label>
-                <input
-                  type="text"
-                  value={rxHospital}
-                  onChange={(e) => setRxHospital(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                />
-              </div>
-
-              <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-xl text-[11px] text-emerald-300">
-                ✓ Cryptographic Digital Signature will be generated and broadcast to the patient's portable health vault.
-              </div>
-
-              <div className="pt-2 flex justify-end space-x-2">
+              <div className="flex items-center justify-end space-x-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsPrescribing(false)}
-                  className="px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-300"
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-glow-cyan"
+                  className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold"
                 >
-                  Sign & Dispense
+                  Submit Order
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Main Two-Column Layout: Reports List & Detailed PACS Study Viewer */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        {/* Left Column: Reports List (5 cols) */}
+        <div className="lg:col-span-5 space-y-3">
+          <div className="pro-card p-3 flex items-center justify-between gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Filter reports..."
+                className="w-full rounded bg-slate-900 border border-slate-800 pl-8 pr-2 py-1 text-xs text-white placeholder-slate-500 outline-none"
+              />
+            </div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="rounded bg-slate-900 border border-slate-800 text-slate-300 text-xs px-2 py-1 outline-none cursor-pointer"
+            >
+              <option value="All">All Modalities</option>
+              <option value="X-Ray Imaging">X-Ray</option>
+              <option value="CT Scan">CT Scan</option>
+              <option value="MRI Neuro">MRI</option>
+              <option value="Lab Panel">Lab Panel</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            {filteredReports.map((rep) => {
+              const isSelected = selectedReport?.id === rep.id;
+              const isCritical = rep.status === 'Critical Alert';
+
+              return (
+                <div
+                  key={rep.id}
+                  onClick={() => setSelectedReport(rep)}
+                  className={`pro-card-interactive p-3.5 cursor-pointer space-y-1.5 ${
+                    isSelected ? 'border-sky-500 bg-sky-950/20' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-white line-clamp-1">{rep.title}</h4>
+                      <span className="text-[11px] text-slate-400 font-medium">{rep.hospitalDepartment}</span>
+                    </div>
+                    <span className={`px-2 py-0.2 rounded text-[10px] font-bold uppercase border ${
+                      isCritical
+                        ? 'bg-rose-950 text-rose-300 border-rose-800'
+                        : rep.status === 'Abnormal'
+                        ? 'bg-amber-950 text-amber-300 border-amber-800'
+                        : 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                    }`}>
+                      {rep.status}
+                    </span>
+                  </div>
+
+                  <div className="text-[11px] text-slate-300 line-clamp-2">
+                    {rep.findings}
+                  </div>
+
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800/60 font-mono">
+                    <span>{rep.timestamp}</span>
+                    <span className="text-sky-400 font-semibold">{rep.category}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Column: Selected Diagnostic Study Detail & PACS Viewer (7 cols) */}
+        {selectedReport ? (
+          <div className="lg:col-span-7 space-y-4">
+            <div className="pro-card p-5 space-y-4">
+              
+              {/* Study Header */}
+              <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+                <div>
+                  <div className="flex items-center space-x-2 mb-1 font-mono text-[11px]">
+                    <span className="text-sky-400 font-bold">{selectedReport.category}</span>
+                    <span className="text-slate-600">•</span>
+                    <span className="text-slate-400">{selectedReport.hospitalDepartment}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-white">{selectedReport.title}</h3>
+                  <p className="text-xs text-slate-400">Timestamp: {selectedReport.timestamp} • Verified by Staff</p>
+                </div>
+
+                <span className={`px-2.5 py-1 rounded text-xs font-bold uppercase border ${
+                  selectedReport.status === 'Critical Alert'
+                    ? 'bg-rose-950 text-rose-300 border-rose-800'
+                    : selectedReport.status === 'Abnormal'
+                    ? 'bg-amber-950 text-amber-300 border-amber-800'
+                    : 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                }`}>
+                  {selectedReport.status}
+                </span>
+              </div>
+
+              {/* PACS / Imaging Preview (if available) */}
+              {selectedReport.previewImageUrl && (
+                <div className="rounded-lg overflow-hidden border border-slate-800 bg-slate-950">
+                  <div className="p-2 border-b border-slate-800 text-[11px] font-mono text-slate-400 flex items-center justify-between bg-slate-900/60">
+                    <span>DICOM Multi-Slice PACS Preview</span>
+                    <span>Window/Level: 400/40 HU</span>
+                  </div>
+                  <img 
+                    src={selectedReport.previewImageUrl} 
+                    alt="Radiology Study"
+                    className="w-full h-56 object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Radiologist Clinical Findings */}
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wide">
+                  Radiologist Clinical Findings
+                </h4>
+                <div className="p-3.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs text-slate-200 leading-relaxed font-sans">
+                  {selectedReport.findings}
+                </div>
+              </div>
+
+              {/* AI Diagnostic Impression */}
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-bold text-sky-400 uppercase tracking-wide flex items-center space-x-1.5">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>AI Computer-Aided Diagnostic Impression</span>
+                </h4>
+                <div className="p-3.5 rounded-lg bg-sky-950/20 border border-sky-800/40 text-xs text-sky-200 leading-relaxed">
+                  {selectedReport.aiImpression}
+                </div>
+              </div>
+
+              {/* Physician Verified Sign-off */}
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
+                <span className="flex items-center space-x-1 text-emerald-400">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>Verified Electronic Sign-off (Dr. Sarah Lin, MD)</span>
+                </span>
+                <span>Audit ID: PACS-2026-9842</span>
+              </div>
+
+            </div>
+          </div>
+        ) : (
+          <div className="lg:col-span-7 pro-card p-12 text-center text-slate-500 text-xs">
+            Select a diagnostic study from the left to view full findings and PACS imaging.
+          </div>
+        )}
+
+      </div>
 
     </div>
   );

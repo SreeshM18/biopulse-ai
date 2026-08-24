@@ -5,6 +5,8 @@ import {
   DoctorProfile
 } from '../types/biotech';
 import { PATIENT_DATABASE } from '../data/patientDatabase';
+import { supabaseManager } from './supabaseClient';
+import { supabaseSync, SyncResult } from './supabaseSyncService';
 
 /* =========================================================================
    1. TYPES & SCHEMAS FOR MASTER PERSISTENT CLINICAL DATABASE
@@ -502,6 +504,65 @@ class ClinicalDatabaseService {
     } catch (err: any) {
       return { success: false, message: `Import error: ${err.message}` };
     }
+  }
+
+  /* =========================================================================
+     F. SUPABASE CLOUD POSTGRESQL INTEGRATION
+     ========================================================================= */
+
+  public isSupabaseConfigured(): boolean {
+    return supabaseManager.isConfigured();
+  }
+
+  public getSupabaseConfig() {
+    return supabaseManager.getConfig();
+  }
+
+  public setSupabaseCredentials(url: string, anonKey: string) {
+    return supabaseManager.setCredentials(url, anonKey);
+  }
+
+  public clearSupabaseCredentials() {
+    supabaseManager.clearCredentials();
+  }
+
+  public async testSupabaseConnection() {
+    return await supabaseManager.testConnection();
+  }
+
+  public async pushToSupabase(): Promise<SyncResult> {
+    const data = {
+      users: this.getUsers(),
+      patients: this.getPatients(),
+      invoices: this.getInvoices(),
+      appointments: this.getAppointments(),
+      auditLogs: this.getAuditLogs()
+    };
+
+    const res = await supabaseSync.pushAllToCloud(data);
+    if (res.success) {
+      this.logAction('DATABASE_BACKUP', 'Local database successfully synchronized with Supabase Cloud PostgreSQL', 'admin', 'Database Admin', 'hospital');
+    }
+    return res;
+  }
+
+  public async pullFromSupabase(): Promise<{ success: boolean; message: string; error?: string }> {
+    const res = await supabaseSync.pullAllFromCloud();
+    if (res.success && res.data) {
+      if (res.data.users.length) localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(res.data.users));
+      if (res.data.patients.length) localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(res.data.patients));
+      if (res.data.invoices.length) localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(res.data.invoices));
+      if (res.data.appointments.length) localStorage.setItem(STORAGE_KEYS.APPOINTMENTS, JSON.stringify(res.data.appointments));
+      if (res.data.auditLogs.length) localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify(res.data.auditLogs));
+      
+      this.logAction('DATABASE_BACKUP', 'Hydrated local database from Supabase Cloud PostgreSQL', 'admin', 'Database Admin', 'hospital');
+      return { success: true, message: res.message };
+    }
+    return { success: false, message: res.message, error: res.error };
+  }
+
+  public setupRealtimeSync(onUpdate: (table: string, eventType: string, payload: any) => void) {
+    return supabaseSync.subscribeToRealtimeChanges(onUpdate);
   }
 
   public resetToFactoryDefaults(): void {
